@@ -2,7 +2,6 @@
 
 ### Useful links
 * http://flask.pocoo.org
-* http://bottlepy.org
 * http://d3js.org
 
 ### Notes 27th Feb 2015
