@@ -8,7 +8,6 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def view_index():
-    return 'Hello world!'
-
+    return render_template("feed.html")
 if __name__ == '__main__':
     socketio.run(app)
