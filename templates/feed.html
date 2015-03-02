@@ -6,16 +6,20 @@
 		<link rel="stylesheet" href="static/css/bootstrap-theme.min.css">
 		<script src="static/js/jquery-2.1.3.min.js"></script>
 		<script src="static/js/knockout-3.3.0.min.js"></script>
-		<script src="static/js/socket.io-1.3.4.js"></script>
-		<script src="static/js/boostrap.min.js"></script>
+		<script src="static/js/socket.io-0.9.16.js"></script>
+		<script src="static/js/bootstrap.min.js"></script>
 		<script>
 			function liveTweetViewModel() {
 				var self = this;
+				var tweetsCapacity = 20;
 				self.tweets = ko.observableArray([
 					{ 'name': 'Paul Herman', 'status': 'super awesome status', 'avatar': 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/v/t1.0-1/c0.0.200.200/p200x200/1779726_664527183611141_1808764288_n.jpg?oh=8732a0d9f27a7e660b18d5d9409d1e29&oe=5586CD3F&__gda__=1433647338_f7fa5afaf4069efc18bfc39cefec4b65' }
 				]);
 				self.addTweet = function(tweet) {
-					self.tweets.push(tweet);
+					self.tweets.unshift(tweet);
+					if (self.tweets().length > self.tweetsCapacity) {
+						self.tweets.pop();
+					}
 				}
 				self.searchTweets = function() {
 					self.tweets.removeAll();
@@ -23,6 +27,7 @@
 			}
 			$(document).ready(function() {
 				ko.applyBindings(new liveTweetViewModel());
+				var socket = io.connect('http://' + document.domain + ':' + location.port);
 			});
 		</script>
 	</head>
