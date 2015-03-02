@@ -12,6 +12,8 @@
 			function liveTweetViewModel() {
 				var self = this;
 				var tweetsCapacity = 20;
+				var socket = io.connect('http://' + document.domain + ':' + location.port);
+				self.search = ko.observable("");
 				self.tweets = ko.observableArray([
 					{ 'name': 'Paul Herman', 'status': 'super awesome status', 'avatar': 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/v/t1.0-1/c0.0.200.200/p200x200/1779726_664527183611141_1808764288_n.jpg?oh=8732a0d9f27a7e660b18d5d9409d1e29&oe=5586CD3F&__gda__=1433647338_f7fa5afaf4069efc18bfc39cefec4b65' }
 				]);
@@ -22,18 +24,23 @@
 					}
 				}
 				self.searchTweets = function() {
+					socket.emit('search_hashtags', {
+						search: self.search()
+					});
 					self.tweets.removeAll();
 				}
+				socket.on('tweets_update', function(data) {
+					self.addTweet(data);
+				});
 			}
 			$(document).ready(function() {
 				ko.applyBindings(new liveTweetViewModel());
-				var socket = io.connect('http://' + document.domain + ':' + location.port);
 			});
 		</script>
 	</head>
 	<body>
 		<div id="searchbox">
-			<input type="text" placeholder="#hashtag" />
+			<input type="text" data-bind="value: search" placeholder="#hashtag" />
 			<button data-bind="click: searchTweets">Search</button>
 		</div>
 		<div data-bind="foreach: tweets" class="tweet">
