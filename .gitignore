@@ -1,3 +1,4 @@
 env/
 .Python
 *.swp
+*.pyc
