@@ -4,14 +4,14 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-from gevent import monkey
+from logentries import LogentriesHandler
 import logging
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'va_%r-jZ%Yl=3t9Q8ml[.Wu0!mT$Gy[gsgr/:>M8rm-]0fq`^<TK2L*x\dQW'
-log_stream = logging.StreamHandler()
-app.logger.addHandler(log_stream)
+log = logging.getLogger('logentries')
+app.logger.addHandler('10fe5f8f-ff8b-4169-8eb8-cd1262727b04')
 app.logger.setLevel(logging.INFO)
 socketio = SocketIO(app)
 
