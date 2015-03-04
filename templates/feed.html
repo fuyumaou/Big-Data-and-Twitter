@@ -13,6 +13,7 @@
 				var self = this;
 				var tweetsCapacity = 20;
 				var socket = io.connect('http://' + document.domain + ':' + location.port);
+				var search_key = "";
 				self.search = ko.observable("");
 				self.tweets = ko.observableArray([
 					{ 'name': 'Paul Herman', 'status': 'super awesome status', 'avatar': 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/v/t1.0-1/c0.0.200.200/p200x200/1779726_664527183611141_1808764288_n.jpg?oh=8732a0d9f27a7e660b18d5d9409d1e29&oe=5586CD3F&__gda__=1433647338_f7fa5afaf4069efc18bfc39cefec4b65' }
@@ -24,8 +25,12 @@
 					}
 				}
 				self.searchTweets = function() {
-					socket.emit('search_hashtags', {
-						search: self.search()
+					socket.emit('hashtag_unsubscribe', {
+						hashtag: search_key
+					});
+					search_key = self.search();
+					socket.emit('hashtag_subscribe', {
+						hashtag: self.search()
 					});
 					self.tweets.removeAll();
 				}
@@ -44,9 +49,11 @@
 			<button data-bind="click: searchTweets">Search</button>
 		</div>
 		<div data-bind="foreach: tweets" class="tweet">
-			<img width="50px" height="50px" data-bind="attr: {src: avatar}" />
-			<span data-bind="text: name"></span>
-			<span data-bind="text: status"></span>
+			<div>
+				<img width="50px" height="50px" data-bind="attr: {src: avatar}" />
+				<span data-bind="text: name"></span>
+				<span data-bind="text: status"></span>
+			</div>
 		</div>
 	</body>
 </html>
