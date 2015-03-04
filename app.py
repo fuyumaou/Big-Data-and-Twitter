@@ -43,9 +43,10 @@ filters = {}
 
 def restart_stream():
 	twitter_stream.disconnect()
-	tracks = [filter for filter in filters.keys()]
-	app.logger.info('started stream filter on [' + ', '.join(tracks) + ']')
+	if len(tracks) > 0:
 	twitter_stream.filter(track = tracks, async = True)
+		tracks = [filter for filter in filters.keys()]
+		app.logger.info('started stream filter on [' + ', '.join(tracks) + ']')
 
 @app.route('/')
 def view_index():
