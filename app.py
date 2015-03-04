@@ -4,17 +4,14 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-from logentries import LogentriesHandler
+from gevent import monkey
 import logging
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'va_%r-jZ%Yl=3t9Q8ml[.Wu0!mT$Gy[gsgr/:>M8rm-]0fq`^<TK2L*x\dQW'
-log = logging.getLogger('logentries')
-log.setLevel(logging.INFO)
-# Note if you have set up the logentries handler in Django, the following line is not necessary
-log.addHandler(LogentriesHandler('10fe5f8f-ff8b-4169-8eb8-cd1262727b04'))
-app.logger.addHandler(log)
+log_stream = logging.StreamHandler()
+app.logger.addHandler(log_stream)
 app.logger.setLevel(logging.INFO)
 socketio = SocketIO(app)
 
@@ -77,5 +74,4 @@ def ws_hashtag_subscribe(data):
 	app.logger.info('joined room ' + hashtag)
 
 if __name__ == '__main__':
-	app.logger.info('started oxtw')
 	socketio.run(app)
