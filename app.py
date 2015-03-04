@@ -44,7 +44,7 @@ filters = {}
 def restart_stream():
 	twitter_stream.disconnect()
 	if len(tracks) > 0:
-	twitter_stream.filter(track = tracks, async = True)
+		twitter_stream.filter(track = tracks, async = True)
 		tracks = [filter for filter in filters.keys()]
 		app.logger.info('started stream filter on [' + ', '.join(tracks) + ']')
 
