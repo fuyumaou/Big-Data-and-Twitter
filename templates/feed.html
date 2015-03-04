@@ -25,14 +25,16 @@
 					}
 				}
 				self.searchTweets = function() {
-					socket.emit('hashtag_unsubscribe', {
-						hashtag: search_key
-					});
-					search_key = self.search();
-					socket.emit('hashtag_subscribe', {
-						hashtag: self.search()
-					});
-					self.tweets.removeAll();
+					if (search_key != self.search()) {
+						socket.emit('hashtag_unsubscribe', {
+							hashtag: search_key
+						});
+						search_key = self.search();
+						socket.emit('hashtag_subscribe', {
+							hashtag: self.search()
+						});
+						self.tweets.removeAll();
+					}
 				}
 				socket.on('tweets_update', function(data) {
 					self.addTweet(data);

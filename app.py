@@ -4,10 +4,15 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-import signal
+from gevent import monkey
+import logging
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'va_%r-jZ%Yl=3t9Q8ml[.Wu0!mT$Gy[gsgr/:>M8rm-]0fq`^<TK2L*x\dQW'
+log_stream = logging.StreamHandler()
+app.logger.addHandler(log_stream)
+app.logger.setLevel(logging.INFO)
 socketio = SocketIO(app)
 
 class TwitterListener(StreamListener):
@@ -19,7 +24,7 @@ class TwitterListener(StreamListener):
 				'name': 'name',
 				'avatar': ''
 			}, room = hashtag)
-			print 'sent tweet on ' + hashtag
+			app.logger.info('sent tweet on ' + hashtag)
 		return True
 	def on_error(self, status):
 		print status
@@ -39,7 +44,7 @@ filters = {}
 def restart_stream():
 	twitter_stream.disconnect()
 	tracks = [filter for filter in filters.keys()]
-	print 'started stream filter on [' + ', '.join(tracks) + ']'
+	app.logger.info('started stream filter on [' + ', '.join(tracks) + ']')
 	twitter_stream.filter(track = tracks, async = True)
 
 @app.route('/')
@@ -55,7 +60,7 @@ def ws_hashtag_unsubscribe(data):
 		if filters[hashtag] == 0:
 			filters.pop(hashtag, None)
 			restart_stream()
-		print 'left room ' + hashtag
+		app.logger.info('left room ' + hashtag)
 
 @socketio.on('hashtag_subscribe')
 def ws_hashtag_subscribe(data):
@@ -66,11 +71,7 @@ def ws_hashtag_subscribe(data):
 	else:
 		filters[hashtag] += 1
 	join_room(hashtag)
-	print 'joined room ' + hashtag
+	app.logger.info('joined room ' + hashtag)
 
 if __name__ == '__main__':
-	try:
-		socketio.run(app)
-	except KeyboardInterrupt:
-		twitter_stream.disconnect()
-		socketio.server.stop()
+	socketio.run(app)
