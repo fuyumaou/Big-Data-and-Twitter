@@ -9,7 +9,6 @@ twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
 
 def tweet_text_language(tweet_text):
 	(language, confidence) = langid.classify(tweet_text)
-	if confi
 	return language
 
 def tweet_text_process(tweet_text):
@@ -27,8 +26,8 @@ if __name__ == '__main__':
 	twitter_stream = twitter_api.request('statuses/filter', {'locations': '-14.02,49.67,2.09,61.06'}) # get tweets stream for UK
 	for tweet in twitter_stream:
 		if 'text' in tweet:
-			tweet_text = tweet_text_process(data['text'])
-			tweet_language = get_langid(tweet_text)
+			tweet_text = tweet_text_process(tweet['text'])
+			tweet_language = tweet_text_language(tweet_text)
 			if tweet_language != 'en':
 				print tweet_text
 				print tweet_language
