@@ -1,1 +1,2 @@
-web: gunicorn app:app
+web: gunicorn api:app
+worker: python crawler.py

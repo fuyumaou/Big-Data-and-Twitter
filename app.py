@@ -1,80 +1,52 @@
 #!env/bin/python
-from flask import Flask, render_template, request, redirect, url_for
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from TwitterAPI import TwitterAPI
-import threading
-import time
-
+from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'va_%r-jZ%Yl=3t9Q8ml[.Wu0!mT$Gy[gsgr/:>M8rm-]0fq`^<TK2L*x\dQW'
-socketio = SocketIO(app)
 
-twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
-twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
-twitter_consumer_key = 'bWMmJpHklikmU3fbKemgmr40H'
-twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
-twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
+#Mock Database --- to be replaced with actual DB
+db = [
+	 {'id':1,'language':'en','x':1,'y':1},
+	 {'id':2,'language':'en','x':2,'y':2},
+	 {'id':3,'language':'rs','x':3,'y':0}
+	]
 
-filters = {}
-twitter_stream_running = False
-twitter_stream_stopped = True
+#List of languages to be queried on
+# !! --- Update it to contain all languages in one way or another OR Sort the DB on languages OR implement any other solution for the helper
+languages = ['en']
 
-def twitter_stream_stop_thread():
-	global twitter_stream_running
-	global twitter_stream_stopped
-	twitter_stream_running = False
-	while not twitter_stream_stopped:
-		time.sleep(1)
+#----------------------------------------------------------------------------
 
-def twitter_stream_thread():
-	global twitter_stream_running
-	global twitter_stream_stopped
-	twitter_stream_stopped = False
-	twitter_stream_running = True
-	tracks = [f for f in filters.keys() if filters[f] > 0]
-	if len(tracks) > 0:
-		print('started stream filter on [' + ', '.join(tracks) + ']')
-		r = twitter_api.request('statuses/filter', {'track': tracks})
-		for data in r:
-			if not twitter_stream_running:
-				break
-			if 'text' in data:
-				hashtags = map(lambda t: '#' + t['text'].lower(), data['entities']['hashtags'])
-				for hashtag in hashtags:
-					socketio.emit('tweets_update', {
-						'status': data['text'],
-						'name': 'name',
-						'avatar': ''
-					}, room = hashtag)
-					print('sent tweet on ' + hashtag)
-	twitter_stream_stopped = True
+# helper_languages_get
+# !! --- need to be changed to work with an actual MongoDB database
+# Input: x0, y0, x1, y1 --- 4 coordinates
+# Output: A List of Records of type {language, number} where number is the number
+#		of tweets in the respective language
+def helper_languages_get(x0,y0,x1,y1):
+	results=[]
+	for lang in languages:
+		number_tweets_in_lang=len(filter(lambda p: (p['language']==lang and p['x']>=x0 and p['x']<=x1 and p['y']>=y0 and p['y']<=y1), db))
+		if len>0:
+			results.append({'language':lang,'number':number_tweets_in_lang})
+	return results
 
-@app.route('/')
-def view_index():
-	return render_template('feed.html')
+#----------------------------------------------------------------------------
 
-@socketio.on('hashtag_unsubscribe')
-def ws_hashtag_unsubscribe(data):
-	hashtag = data['hashtag'].lower()
-	if hashtag != '':
-		leave_room(hashtag)
-		filters[hashtag] -= 1
-		if filters[hashtag] == 0:
-			twitter_stream_stop_thread()
-			threading.Thread(target = twitter_stream_thread).start()
-		print('left room ' + hashtag)
+#----------------------------------------------------------------------------
 
-@socketio.on('hashtag_subscribe')
-def ws_hashtag_subscribe(data):
-	hashtag = data['hashtag'].lower()
-	join_room(hashtag)
-	if not hashtag in filters:
-		filters[hashtag] = 1
-		twitter_stream_stop_thread()
-		threading.Thread(target = twitter_stream_thread).start()
-	else:
-		filters[hashtag] += 1
-	print('joined room ' + hashtag)
+# GET request for the languages in the area x0, y0, x1, y1
+@app.route('/languages/<int:x0>/<int:y0>/<int:x1>/<int:y1>', methods = ['GET'])
+def api_languages_get(x0,y0,x1,y1):
+	results = helper_languages_get(x0,y0,x1,y1)
+	return make_response(jsonify({'stats':results}), 200)
 
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+
+# Handler for 404 errors
+@app.errorhandler(404)
+def error_not_found(error):
+	return make_response(jsonify({'error': 'Resource not found'}), 404)
+
+#-----------------------------------------------------------------------------
 if __name__ == '__main__':
-	socketio.run(app)
+	app.run(debug = True)

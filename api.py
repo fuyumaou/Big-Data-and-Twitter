@@ -1,6 +1,5 @@
 #!env/bin/python
 from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
-import unirest
 app = Flask(__name__)
 
 #Mock Database --- to be replaced with actual DB
@@ -9,14 +8,14 @@ db = [
 	 {'id':2,'language':'en','x':2,'y':2},
 	 {'id':3,'language':'rs','x':3,'y':0}
 	]
-	
+
 #List of languages to be queried on
 # !! --- Update it to contain all languages in one way or another OR Sort the DB on languages OR implement any other solution for the helper
 languages = ['en']
 
 #----------------------------------------------------------------------------
 
-# helper_languages_get 
+# helper_languages_get
 # !! --- need to be changed to work with an actual MongoDB database
 # Input: x0, y0, x1, y1 --- 4 coordinates
 # Output: A List of Records of type {language, number} where number is the number
