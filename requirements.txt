@@ -7,8 +7,12 @@ greenlet==0.4.5
 gunicorn==19.2.1
 itsdangerous==0.24
 Jinja2==2.7.3
+langid==1.1.4.dev0
 MarkupSafe==0.23
+numpy==1.9.2
 oauthlib==0.7.2
+poster==0.8.1
+pymongo==2.8
 requests==2.5.3
 requests-oauthlib==0.4.2
 TwitterAPI==2.3.2
