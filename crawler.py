@@ -1,4 +1,5 @@
 import re
+import os
 from TwitterAPI import TwitterAPI
 
 twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
@@ -34,6 +35,8 @@ def read_stopwords():
 
 
 if __name__ == '__main__':
+	mongodb_url = os.getenv('MONGOLAB_URI')
+	print mongodb_url
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
 	twitter_stream = twitter_api.request('statuses/filter', {'locations': '-14.02,49.67,2.09,61.06'}) # get tweets stream for UK
