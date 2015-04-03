@@ -53,6 +53,7 @@
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ1QG7SEdSi66Tr0IE5ehHUpnoAbEQcnE">
     </script>-->
     <script src="https://maps.googleapis.com/maps/api/js?v=3&libraries=places"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   </head>
   <body>
     <input id="pac-input" class="controls" type="text" placeholder="Search Box">
@@ -80,7 +81,7 @@ lang={"type": "FeatureCollection","features":[
 	},
 	{"type": "Feature",
 		"properties":{"language":"fr"},
-		"geometry": {"type": "Point","coordinates": [10, 10]}
+		"geometry": {"type": "Point","coordinates": [10, 50]}
 	}
 ]}
 
@@ -105,17 +106,24 @@ map.data.setStyle(function(feature) {
     };
 });
 
+lastBounds=false
 function updateLocation(){
-	console.log(map.getBounds().toString())
-	//check its different enough to the last time to avoid unnecessary loads
-	
-	//AJAX
-	//getData(map.getBounds().toString(),loadData)
-	loadData(stuff)
+
+	//AJAX(map.getBounds().toString(),loadData)
+	//check its to the last time to avoid unnecessary loads
+	// could also ignore small changes
+	if(lastBounds!=map.getBounds()){
+		lastBounds=map.getBounds()
+		sw=map.getBounds().getSouthWest()
+		ne=map.getBounds().getNorthEast()
+		$.get("/languages/"+sw.lng()+"/"+sw.lat()+"/"+ne.lng()+"/"+ne.lat(),loadData)
+	}
 }
 
 function loadData(stuff){
-	var data=JSON.parse(stuff)
+	//watch out, some combination of flask and jquery are causing this to this to give actual javascript objects, rather than strings as I(Toby) was expecting 
+    console.log(stuff)
+	data=stuff.data
 	data.sort(function(a,b){return b[1]-a[1]})
 	total=0
 	for(var i=0; i<data.length; i++){
