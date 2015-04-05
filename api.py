@@ -4,18 +4,17 @@ import pymongo
 from pymongo import MongoClient
 app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
+
 # Connecting to Mongo Client
 # !! --- Might need to be updated to use a not local DB
-client = MongoClient()
-
-# Connecting to Mock Database
-# !! --- To be updated to deal with the actual DBs
-db = client['MockDB']
+mongo_url = os.getenv('MONGOLAB_URI')
+mongo_client = MongoClient(mongo_url)
+mongo_db = mongo_client.get_default_database()
 
 # Retrieval of languages and tweet collections
 # !! --- Might be necessary to find alternative way of storing the list of languages
-languagesCollection = db['languageList']
-tweetsCollection = db['languageTweets']
+languagesCollection = mongo_db['languages']
+tweetsCollection = mongo_db['languageTweets']
 
 # List of languages to be queried on --- built using data from DB
 languages=["en","fr","rs"]#sample
@@ -38,14 +37,14 @@ for tweet in tweetsCollection.find():
 # Input: x0, y0, x1, y1 --- 4 coordinates (west,south,east,north)
 # Output: A List of Records of type {language, number} where number is the number
 #       of tweets in the respective language in the defined rectangular area
-def helper_languages_get(x0,y0,x1,y1):
-    results=[]
+def helper_languages_get(x0, y0, x1, y1):
+    results = []
     for lang in languages:
         number_tweets_in_lang=len(filter(lambda p: (p['language']==lang and p['x']>=x0 and p['x']<=x1 and p['y']>=y0 and p['y']<=y1), tweets))
         if number_tweets_in_lang>0:
             results.append([lang,number_tweets_in_lang])
     return results
-    
+
 # helper_languagescircle_get
 # !! --- to be changed to use querying instead of filter
 # Input: x,y --- 2 coordinates, r --- radius of the area
@@ -134,7 +133,7 @@ def api_languageslocations_get(sx0,sy0,sx1,sy1):
         return make_response(jsonify({'error': 'Bad Request'}), 400)
     results = helper_languageslocations_get(x0,y0,x1,y1)
     return make_response(jsonify({'type':'LanguagesLocations','features':results}),200)
-    
+
 # GET request for the locations of all tweets and their language in circular area with centre (x,y) and radius r**2
 @app.route('/languageslocationscircle/<string:sx>/<string:sy>/<string:sr>', methods =['GET'])
 def api_languaceslocationscircle_get(sx,sy,r):
