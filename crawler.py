@@ -17,25 +17,38 @@ def tweet_text_words(tweet_text):
 	tweet_words = filter(lambda w: w != '', tweet_words) # filter empty words
 	return tweet_words
 
+def tweet_get_geolocation(tweet):
+	if 'coordinates' in tweet:
+		geo = tweet['coordinates']
+		if geo is not None and 'type' in geo and geo['type'] == 'Point' and 'coordinates' in geo:
+			coordinates = geo['coordinates']
+			return {
+				'latitude': coordinates[1],
+				'longitude': coordinates[0]
+			}
+		return None
+	else:
+		return None
+
 def tweet_process(tweet, stopwords, mongo_db):
 	tweet_text_dirty = tweet['text']
 	tweet_words = tweet_text_words(tweet_text_dirty)
 	tweet_text = ' '.join(tweet_words)
 	tweet_non_stopwords = filter(lambda w: w not in stopwords, tweet_words)
+	tweet_geolocation = tweet_get_geolocation(tweet)
+	tweet_language = tweet['lang']
 
 	mongo_db_languages = mongo_db['languages']
-
-	tweet_language = tweet['lang']
-	if tweet_language != 'und':
+	if tweet_language != 'und' and tweet_geolocation is not None:
 		mongo_db_languages.update({
 			'language': tweet_language
 		}, {
 			'$push': {
-				'tweets': tweet_text
+				'tweet': tweet_geolocation
 			}
 		}, True)
 
-	print(tweet_text, tweet_language, tweet_non_stopwords)
+	print(tweet_text, tweet_geolocation, tweet_language, tweet_non_stopwords)
 
 def read_stopwords():
 	stopwords_file = open('stopwords')
