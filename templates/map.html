@@ -74,7 +74,8 @@ map = new google.maps.Map(
   mapOptions);
 
 //This data should be loaded from somewhere
-lang={"type": "FeatureCollection","features":[
+languageTweetsNotLoaded = false; languageTweetsNotReady = true
+/*langs={"type": "FeatureCollection","features":[
 	{"type": "Feature",
 		"properties":{"language":"en"},
 		"geometry": {"type": "Point","coordinates": [0, 0]}
@@ -83,9 +84,14 @@ lang={"type": "FeatureCollection","features":[
 		"properties":{"language":"fr"},
 		"geometry": {"type": "Point","coordinates": [10, 50]}
 	}
-]}
+]}*/
+langs={"type":"FeatureCollection","features":[]}
+$.get("/languageslocations/-180/-90/180/90",loadTweetsLocations)
 
-
+function loadTweetsLocations(value){
+    langs={"type": "FeatureCollection","features":value.data}
+    languageTweetsNotReady = false;
+}
 //alternative display mode
 //currently involves the server doing almost all the work
 stuff='[["en",4],["fr",5]]'
@@ -96,7 +102,7 @@ flags={
 }
 
 //the bit drawing flags onto the map
-map.data.addGeoJson(lang)
+map.data.addGeoJson(langs)
 //map.data.loadGeoJson(url)
 map.data.setStyle(function(feature) {
     var lang = feature.getProperty('language');
@@ -108,7 +114,7 @@ map.data.setStyle(function(feature) {
 
 lastBounds=false
 function updateLocation(){
-
+    if (languageTweetsNotLoaded!=1){if (languageTweetsNotReady!=1){map.data.addGeoJson(langs);languageTweetsNotReady=1}}
 	//AJAX(map.getBounds().toString(),loadData)
 	//check its to the last time to avoid unnecessary loads
 	// could also ignore small changes
