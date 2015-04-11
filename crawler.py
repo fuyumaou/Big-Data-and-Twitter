@@ -49,15 +49,16 @@ def tweet_process(tweet, stopwords, mongo_db):
 		}, True)
 
 	mongo_db_words = mongo_db['words']
-	for word in tweet_words_filtered:
-		word_clean = filter(lambda c: c.isalnum(), word)
-		mongo_db_words.update({
-			'word': word_clean
-		}, {
-			'$push': {
-				'tweet': tweet_geolocation
-			}
-		}, True)
+	if tweet_language == 'en' and tweet_geolocation is not None:
+		for word in tweet_words_filtered:
+			word_clean = filter(lambda c: c.isalnum(), word)
+			mongo_db_words.update({
+				'word': word_clean
+			}, {
+				'$push': {
+					'tweet': tweet_geolocation
+				}
+			}, True)
 
 	#print(tweet_text, tweet_geolocation, tweet_language, tweet_words_filtered)
 
