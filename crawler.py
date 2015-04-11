@@ -50,8 +50,9 @@ def tweet_process(tweet, stopwords, mongo_db):
 
 	mongo_db_words = mongo_db['words']
 	for word in tweet_words_filtered:
+		word_clean = filter(lambda c: c.isalnum(), word)
 		mongo_db_words.update({
-			'word': word
+			'word': word_clean
 		}, {
 			'$push': {
 				'tweet': tweet_geolocation
