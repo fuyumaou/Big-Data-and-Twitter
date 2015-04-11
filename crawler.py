@@ -9,7 +9,7 @@ twitter_consumer_key = 'bWMmJpHklikmU3fbKemgmr40H'
 twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
 
 def tweet_text_words(tweet_text):
-	tweet_text = re.sub(r'[^\x00-\x7F]+',' ', tweet_text)
+	tweet_text = re.sub(r'[^\x00-\x7F]+',' ', tweet_text) # remove non-printable characters
 	tweet_words = re.split('\s', tweet_text) # split text into words
 	tweet_words = map(lambda w: re.sub('\#.*', '', w), tweet_words) # remove hashtags
 	tweet_words = map(lambda w: re.sub('\@.*', '', w), tweet_words) # remove user mentions
