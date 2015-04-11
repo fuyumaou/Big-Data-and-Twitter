@@ -34,7 +34,7 @@ def tweet_process(tweet, stopwords, mongo_db):
 	tweet_text_dirty = tweet['text']
 	tweet_words = tweet_text_words(tweet_text_dirty)
 	tweet_text = ' '.join(tweet_words)
-	tweet_non_stopwords = filter(lambda w: w not in stopwords, tweet_words)
+	tweet_words_filtered = filter(lambda w: len(w) > 3 and w not in stopwords, map(lambda w: w.lower(), tweet_words))
 	tweet_geolocation = tweet_get_geolocation(tweet)
 	tweet_language = tweet['lang']
 
@@ -48,7 +48,17 @@ def tweet_process(tweet, stopwords, mongo_db):
 			}
 		}, True)
 
-	print(tweet_text, tweet_geolocation, tweet_language, tweet_non_stopwords)
+	mongo_db_words = mongo_db['words']
+	for word in tweet_words_filtered:
+		mongo_db_words.update({
+			'word': word
+		}, {
+			'$push': {
+				'tweet': tweet_geolocation
+			}
+		}, True)
+
+	#print(tweet_text, tweet_geolocation, tweet_language, tweet_words_filtered)
 
 def read_stopwords():
 	stopwords_file = open('stopwords')
