@@ -148,15 +148,19 @@
 					data.sort(function(a, b) {
 						return b[1] - a[1];
 					});
-					total = 0;
+					tweetsCount = 0;
 					for (var i = 0; i < data.length; i++) {
-						total += data[i][1];
+						tweetsCount += data[i][1];
 					}
 					langbox.innerHTML = "";
 					for (var i = 0; i < data.length; i++) {
 						lang = data[i][0]
-						percent = (data[i][1] * 100 / total).toFixed(1)
-							langbox.innerHTML += " <img src=" + flags[lang] + ' alt=" + lang + "></img>:' + percent + "%";
+						percent = (data[i][1] * 100 / tweetsCount).toFixed(1)
+						var languageShareDisplay = " <img src=" + flags[lang] + ' alt=" + lang + "></img>:' + percent + "%";
+						if (!(lang in flags)) {
+							languageShareDisplay = " " + lang + ": " + percent + "%";
+						}
+						langbox.innerHTML += languageShareDisplay;
 					}
 				});
 			}
