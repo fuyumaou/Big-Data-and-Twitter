@@ -61,7 +61,7 @@ def is_in_circle_area(p,x,y,r):
     for i in [-180,0,180]:
             ok = ok and is_within_distance(p,x+i,y,r)
     return ok
-    
+
 #----------------------------------------------------------------------------
 # Helper functions for GET Requests:
 
@@ -106,13 +106,19 @@ def helper_languagescircle_get(x,y,r):
 #           that correspond to tweets, their languages and their locations that can be found in the rectangular area x0,y0,x1,y1
 def helper_languageslocations_get(x0,y0,x1,y1):
     languages = get_languages()
-    results=[]
+    results = []
     for lang in languages:
         lang_tweets = languageCollection.find_one({'language':lang})
         for tweet in filter(lambda p: is_in_rectangle_area(p,x0,y0,x1,y1), lang_tweets['tweet']):
-            results.append({'type': 'Feature','properties':{
-              'language':lang}, 'geometry': {'type': 'Point',
-                'coordinates': [tweet['longitude'], tweet['latitude']]}})    
+            results.append({
+				'type': 'Feature',
+				'properties': {
+					'language':lang
+				}, 'geometry': {
+					'type': 'Point',
+					'coordinates': [tweet['longitude'], tweet['latitude']]
+				}
+			})
     return results
 
 # helper_languageslocationscircle_get
@@ -129,7 +135,7 @@ def helper_languageslocationscircle_get(x,y,r):
         for tweet in filter(lambda p: is_in_circle_area(p,x,y,r), lang_tweets['tweet']):
             results.append({'type': 'Feature','properties':{
               'language':lang}, 'geometry': {'type': 'Point',
-                'coordinates': [tweet['longitude'], tweet['latitude']]}})  
+                'coordinates': [tweet['longitude'], tweet['latitude']]}})
     return results
 
 #----------------------------------------------------------------------------
