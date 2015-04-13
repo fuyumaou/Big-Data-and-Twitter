@@ -140,27 +140,25 @@
 				lastBounds = map.getBounds();
 				sw = map.getBounds().getSouthWest();
 				ne = map.getBounds().getNorthEast();
-				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), loadData);
-			}
-		}
-
-		function loadData(stuff) {
-			//watch out, some combination of flask and jquery are causing this to this to give actual javascript objects, rather than strings as I(Toby) was expecting
-			// Ans: javascript loads the JSON as an object not as a string (Paul)
-			console.log(stuff);
-			data = stuff.data;
-			data.sort(function(a, b) {
-				return b[1] - a[1];
-			});
-			total = 0;
-			for (var i = 0; i < data.length; i++) {
-				total += data[i][1];
-			}
-			langbox.innerHTML = "";
-			for (var i = 0; i < data.length; i++) {
-				lang = data[i][0]
-				percent = (data[i][1] * 100 / total).toFixed(1)
-					langbox.innerHTML += " <img src=" + flags[lang] + ' alt=" + lang + "></img>:' + percent + "%";
+				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(stuff) {
+					//watch out, some combination of flask and jquery are causing this to this to give actual javascript objects, rather than strings as I(Toby) was expecting
+					// Ans: javascript loads the JSON as an object not as a string (Paul)
+					console.log(stuff);
+					data = stuff.data;
+					data.sort(function(a, b) {
+						return b[1] - a[1];
+					});
+					total = 0;
+					for (var i = 0; i < data.length; i++) {
+						total += data[i][1];
+					}
+					langbox.innerHTML = "";
+					for (var i = 0; i < data.length; i++) {
+						lang = data[i][0]
+						percent = (data[i][1] * 100 / total).toFixed(1)
+							langbox.innerHTML += " <img src=" + flags[lang] + ' alt=" + lang + "></img>:' + percent + "%";
+					}
+				});
 			}
 		}
 
