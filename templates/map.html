@@ -41,7 +41,7 @@
 				font-family: Roboto;
 			}
 
-			#language {
+			#overlay {
 				background-color: #fff;
 				font-family: Roboto;
 				font-size: 15px;
@@ -53,7 +53,7 @@
 			}
 
 			img {
-				vertical-align:middle;
+				vertical-align: middle;
 			}
 		</style>
 		<!--<script type="text/javascript"
@@ -64,14 +64,17 @@
 	</head>
 	<body>
 		<input id="pac-input" class="controls" type="text" placeholder="Search Box">
-		<div id="language" class="controls">frog box</div>
+		<div id="overlay" class="controls">
+			<div id="language"></div>
+			<div id="word-cloud">word cloud</div>
+		</div>
 		<div id="map-canvas"></div>
 
 	</body>
 	<script type="text/javascript">
 
-		input = (document.getElementById('pac-input'));
-		langbox = document.getElementById('language')
+		input = document.getElementById('pac-input');
+		overlay = document.getElementById('overlay');
 
 		var mapOptions = {
 			center: {
@@ -145,14 +148,17 @@
 					// Ans: javascript loads the JSON as an object not as a string (Paul)
 					console.log(stuff);
 					data = stuff.data;
+					// Sort by tweet count
 					data.sort(function(a, b) {
 						return b[1] - a[1];
 					});
+
 					tweetsCount = 0;
 					for (var i = 0; i < data.length; i++) {
 						tweetsCount += data[i][1];
 					}
-					langbox.innerHTML = "";
+
+					var languageShareHtml = "";
 					for (var i = 0; i < data.length; i++) {
 						languageId = data[i][0];
 						languageTweetsCount = data[i][1];
@@ -161,8 +167,9 @@
 						if (!(languageId in flags)) {
 							languageShareDisplay = " " + languageId + ": " + languageTweetsShare + "%";
 						}
-						langbox.innerHTML += languageShareDisplay;
+						languageShareHtml += languageShareDisplay;
 					}
+					$("#language").html(languageShareHtml);
 				});
 			}
 		}
@@ -177,7 +184,7 @@
 		//Search box, code from https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
 
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(langbox);
+		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(overlay);
 
 		var autocomplete = new google.maps.places.Autocomplete(input);
 		autocomplete.bindTo('bounds', map);
