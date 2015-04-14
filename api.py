@@ -140,12 +140,13 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 		words_count += 1
 		word = word_tweets['word']
 		locations = word_tweets['tweet']
-		#print word_tweets
+		word_tweets = len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
 
-		words.append({
-			'word': word,
-			'count': len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
-		})
+		if word_tweets > 0:
+			words.append({
+				'word': word,
+				'count': word_tweets
+			})
 
 	words.sort(key = lambda w: w['count'], reverse = True)
 
