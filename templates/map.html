@@ -66,13 +66,12 @@
 		<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 		<div id="overlay" class="controls">
 			<div id="language"></div>
-			<div id="word-cloud">word cloud</div>
+			<div id="word-cloud"></div>
 		</div>
 		<div id="map-canvas"></div>
 
 	</body>
 	<script type="text/javascript">
-
 		input = document.getElementById('pac-input');
 		overlay = document.getElementById('overlay');
 
@@ -80,24 +79,15 @@
 			center: {
 				lat: 51.48,
 				lng: 0
-			}, zoom: 2,
+			}, zoom: 4,
 			disableDefaultUI: true
 		};
 		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
 		//This data should be loaded from somewhere
 		languageTweetsNotLoaded = false;
-		languageTweetsNotReady = true
-		/*langs={"type": "FeatureCollection","features":[
-			{"type": "Feature",
-				"properties":{"language":"en"},
-				"geometry": {"type": "Point","coordinates": [0, 0]}
-			},
-			{"type": "Feature",
-				"properties":{"language":"fr"},
-				"geometry": {"type": "Point","coordinates": [10, 50]}
-			}
-		]}*/
+		languageTweetsNotReady = true;
+
 		langs = {
 			"type": "FeatureCollection",
 			"features": []
@@ -105,14 +95,14 @@
 		$.get("/languageslocations/-180/-90/180/90", loadTweetsLocations)
 
 		function loadTweetsLocations(value) {
-				langs = {
-					"type": "FeatureCollection",
-					"features": value.data
-				};
-				languageTweetsNotReady = false;
+			langs = {
+				"type": "FeatureCollection",
+				"features": value.data
+			};
+			languageTweetsNotReady = false;
 		}
 
-		flags={
+		flags = {
 			'en': 'http://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/40px-Flag_of_the_United_Kingdom.svg.png',
 			'fr': 'http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/30px-Flag_of_France.svg.png'
 		}
@@ -122,10 +112,9 @@
 		//map.data.loadGeoJson(url)
 		map.data.setStyle(function(feature) {
 			var lang = feature.getProperty('language');
-			console.log(lang);
 			var icon = "/static/img/dot.png";
 			if (lang in flags) {
-				//icon = flags[lang];
+				icon = flags[lang];
 			}
 			return {
 				'icon': icon
@@ -147,11 +136,11 @@
 				lastBounds = map.getBounds();
 				sw = map.getBounds().getSouthWest();
 				ne = map.getBounds().getNorthEast();
-				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(stuff) {
+
+				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(response) {
 					//watch out, some combination of flask and jquery are causing this to this to give actual javascript objects, rather than strings as I(Toby) was expecting
 					// Ans: javascript loads the JSON as an object not as a string (Paul)
-					console.log(stuff);
-					data = stuff.data;
+					data = response.data;
 					// Sort by tweet count
 					data.sort(function(a, b) {
 						return b[1] - a[1];
@@ -176,6 +165,15 @@
 						languageShareHtml += languageShareDisplay;
 					}
 					$("#language").html(languageShareHtml);
+				});
+
+				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function(response) {
+					var words = response.words;
+					var word_cloud = "";
+					for (var i = 0; i < words.length; i++) {
+						word_cloud += words[i].word + ": " + words[i].count + "; ";
+					}
+					$("#word-cloud").html(word_cloud);
 				});
 			}
 		}

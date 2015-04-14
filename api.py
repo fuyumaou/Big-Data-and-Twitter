@@ -15,6 +15,7 @@ mongo_db = mongo_client.get_default_database()
 
 # Retrieval of languages and tweet collections
 languageCollection = mongo_db['languages']
+wordsCollection = mongo_db['words']
 
 #----------------------------------------------------------------------------
 # Language Visualisation specific helper functions:
@@ -34,33 +35,19 @@ def get_languages():
 # Function that verifies whether a tweet is within the rectangular area defined by:
 # longitudes x0, x1 and latitudes y0, y1.
 def is_in_rectangle_area(p,x0,y0,x1,y1):
-    ok = True
-    if (x0<=x1):
-        ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
-    else:
-        ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
-    if (y0<=y1):
-        ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
-    else:
-        raise
-    return ok
-
-# is_within_distance
-# Function that verifies whether a tweet is within the distance r**2 from the point (x,y).
-# Input: longitude x, latitude y, root of distance r
-# !! --- Not Certain if this is how distances are computed using longitude and latitude
-def is_within_distance(p,x,y,r):
-    return (p['longitude']**2 + p['latitude']**2 <= r**2)
-
-# is_in_circle_area
-# Function that verifies whether a tweet is within the circular area defined by:
-# centre of longitude x and latitude y, and radius r
-# !! --- Allows wrapping on longitude, but not on latitude!!
-def is_in_circle_area(p,x,y,r):
-    ok = True
-    for i in [-180,0,180]:
-            ok = ok and is_within_distance(p,x+i,y,r)
-    return ok
+	try:
+		ok = True
+		if (x0<=x1):
+			ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
+		else:
+			ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
+		if (y0<=y1):
+			ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
+		else:
+			raise
+		return ok
+	except:
+		return False
 
 #----------------------------------------------------------------------------
 # Helper functions for GET Requests:
@@ -79,22 +66,6 @@ def helper_languages_get(x0, y0, x1, y1):
         number_tweets_in_lang = len(filter(lambda p: is_in_rectangle_area(p,x0,y0,x1,y1), lang_tweets['tweet']))
         if number_tweets_in_lang>0:
             results.append([lang,number_tweets_in_lang])
-    return results
-
-# helper_languagescircle_get
-# !! --- to be changed to use querying instead of len+filter
-# !! --- querying might not be possible ?
-# Input: x,y --- 2 coordinates, r --- radius of the area
-# Output: A List of Records of type {language, number} where number is the number
-#       of tweets in the respective language in the defined circular area
-def helper_languagescircle_get(x,y,r):
-    languages = get_languages()
-    results=[]
-    for lang in languages:
-        lang_tweets = languageCollection.find_one({'language':lang})
-        number_tweets_in_lang = len(filter(lambda p: is_in_circle_area(p,x,y,r), lang_tweets['tweet']))
-        if number_tweets_in_lang>0:
-            results.append({'language':lang,'number':number_tweets_in_lang})
     return results
 
 # helper_languageslocations_get
@@ -121,23 +92,6 @@ def helper_languageslocations_get(x0,y0,x1,y1):
 			})
     return results
 
-# helper_languageslocationscircle_get
-# !! --- to be changed to use querying instead of filter
-# !! --- querying might not be possible ?
-# Input: x,y --- 2 coordinates, r --- radius of the area
-# Output: A List of Records of type {type, properties:{language}, geometry: {type,coordinates}}
-#           that correspond to tweets, their languages and their locations that can be found in the circular area defined by x,y,r
-def helper_languageslocationscircle_get(x,y,r):
-    languages = get_languages()
-    results=[]
-    for lang in languages:
-        lang_tweets = languageCollection.find_one({'language':lang})
-        for tweet in filter(lambda p: is_in_circle_area(p,x,y,r), lang_tweets['tweet']):
-            results.append({'type': 'Feature','properties':{
-              'language':lang}, 'geometry': {'type': 'Point',
-                'coordinates': [tweet['longitude'], tweet['latitude']]}})
-    return results
-
 #----------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------
@@ -153,22 +107,8 @@ def api_languages_get(sx0,sy0,sx1,sy1):
         x1 = float(sx1)
         y1 = float(sy1)
     except:
-        return make_response(jsonify({'error': 'Bad Request'}), 400)
+		abort(400)
     results = helper_languages_get(x0,y0,x1,y1)
-    return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
-
-# GET request for the languages in the circular area with centre (x, y) and radius r
-@app.route('/languagescircle/<string:sx>/<string:sy>/<string:sr>', methods = ['GET'])
-def api_languagescircle_get(sx,sy,sr):
-    try:
-        x = float(sx)
-        y = float(sy)
-        r = float(sr)
-        if (r<0.0):
-            raise
-    except:
-        return make_response(jsonify({'error': 'Bad Request'}), 400)
-    results = helper_languagescircle_get(x,y,r)
     return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
 
 # GET request for the locations of all tweets and their language in the rectangular area x0, y0, x1, y1
@@ -180,34 +120,53 @@ def api_languageslocations_get(sx0,sy0,sx1,sy1):
         x1 = float(sx1)
         y1 = float(sy1)
     except:
-        return make_response(jsonify({'error': 'Bad Request'}), 400)
+		abort(400)
     results = helper_languageslocations_get(x0,y0,x1,y1)
     return make_response(jsonify({'type':'LanguagesLocations','data':results}),200)
 
-# GET request for the locations of all tweets and their language in circular area with centre (x,y) and radius r**2
-@app.route('/languageslocationscircle/<string:sx>/<string:sy>/<string:sr>', methods =['GET'])
-def api_languaceslocationscircle_get(sx,sy,sr):
-    try:
-        x = float(sx)
-        y = float(sy)
-        r = float(sr)
-        if (r<0.0):
-            raise
-    except:
-        return make_response(jsonify({'error': 'Bad Request'}), 400)
-    results = helper_languageslocationscircle_get(x,y,r)
-    return make_response(jsonify({'type':'LanguagesLocations','data':results}),200)
+@app.route('/words/<string:sw_longitude>/<string:sw_latitude>/<string:ne_longitude>/<string:ne_latitude>/<int:word_count>', methods = ['GET'])
+def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
+	try:
+		sw_longitude = float(sw_longitude)
+		sw_latitude = float(sw_latitude)
+		ne_longitude = float(ne_longitude)
+		ne_latitude = float(ne_latitude)
+	except:
+		abort(400)
 
-# An actual webpage!!
+	words = []
+	words_count = 0
+	for word_tweets in wordsCollection.find():
+		words_count += 1
+		word = word_tweets['word']
+		locations = word_tweets['tweet']
+		#print word_tweets
+
+		words.append({
+			'word': word,
+			'count': len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
+		})
+
+	words.sort(key = lambda w: w['count'], reverse = True)
+
+	return make_response(jsonify({
+		'words': words[:word_count]
+	}))
+
+#-----------------------------------------------------------------------------
+
 @app.route('/')
 def homepage_get():
     return render_template("map.html")
 
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# Handler for 400 (bad request) errors
+@app.errorhandler(400)
+def error_not_found(error):
+    return make_response(jsonify({'error': 'Bad request'}), 400)
 
-# Handler for 404 errors
+# Handler for 404 (not found) errors
 @app.errorhandler(404)
 def error_not_found(error):
     return make_response(jsonify({'error': 'Resource not found'}), 404)
