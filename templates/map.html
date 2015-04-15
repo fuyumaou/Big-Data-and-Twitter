@@ -113,8 +113,7 @@
 				sw = lastBounds.getSouthWest();
 				ne = lastBounds.getNorthEast();
 
-				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
-				      function(response) {
+				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(response) {
 					data = response.data;
 					// Sort by tweet count
 					data.sort(function(a, b) {
@@ -142,8 +141,7 @@
 					$("#language").html(languageShareHtml);
 				});
 
-				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",
-				      function(response) {
+				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function(response) {
 					var words = response.words;
 					var word_cloud = "";
 					for (var i = 0; i < words.length; i++) {

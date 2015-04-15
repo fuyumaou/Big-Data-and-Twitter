@@ -9,7 +9,7 @@ app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't s
 
 # Connecting to Mongo Client
 # !! --- Might need to be updated to use a not local DB
-mongo_url = 'mongodb://heroku_app34521350:nnfbrgeool1d3qkt3mv1qs8h54@ds039231.mongolab.com:39231/heroku_app34521350'
+mongo_url = os.getenv('MONGOLAB_URI') 
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
 
