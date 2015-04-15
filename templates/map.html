@@ -84,32 +84,13 @@
 		};
 		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-		//This data should be loaded from somewhere
-		languageTweetsNotLoaded = false;
-		languageTweetsNotReady = true;
-
-		langs = {
-			"type": "FeatureCollection",
-			"features": []
-		}
-		$.get("/languageslocations/-180/-90/180/90", loadTweetsLocations)
-
-		function loadTweetsLocations(value) {
-			langs = {
-				"type": "FeatureCollection",
-				"features": value.data
-			};
-			languageTweetsNotReady = false;
-		}
-
 		flags = {
 			'en': 'http://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/40px-Flag_of_the_United_Kingdom.svg.png',
 			'fr': 'http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/30px-Flag_of_France.svg.png'
 		}
 
-		//the bit drawing flags onto the map
-		map.data.addGeoJson(langs)
-		//map.data.loadGeoJson(url)
+		map.data.loadGeoJson("/languageslocations/-180/-90/180/90")
+		
 		map.data.setStyle(function(feature) {
 			var lang = feature.getProperty('language');
 			var icon = "/static/img/dot.png";
@@ -123,23 +104,17 @@
 
 		lastBounds = false;
 		function updateLocation() {
-			if (languageTweetsNotLoaded != 1) {
-				if (languageTweetsNotReady != 1) {
-					map.data.addGeoJson(langs);
-					languageTweetsNotReady = 1;
-				}
-			}
 			//AJAX(map.getBounds().toString(),loadData)
 			//check its to the last time to avoid unnecessary loads
 			// could also ignore small changes
+			
 			if (lastBounds != map.getBounds()) {
 				lastBounds = map.getBounds();
-				sw = map.getBounds().getSouthWest();
-				ne = map.getBounds().getNorthEast();
+				sw = lastBounds.getSouthWest();
+				ne = lastBounds.getNorthEast();
 
-				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(response) {
-					//watch out, some combination of flask and jquery are causing this to this to give actual javascript objects, rather than strings as I(Toby) was expecting
-					// Ans: javascript loads the JSON as an object not as a string (Paul)
+				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
+				      function(response) {
 					data = response.data;
 					// Sort by tweet count
 					data.sort(function(a, b) {
@@ -167,7 +142,8 @@
 					$("#language").html(languageShareHtml);
 				});
 
-				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function(response) {
+				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",
+				      function(response) {
 					var words = response.words;
 					var word_cloud = "";
 					for (var i = 0; i < words.length; i++) {

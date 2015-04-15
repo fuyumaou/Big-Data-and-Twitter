@@ -9,7 +9,7 @@ app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't s
 
 # Connecting to Mongo Client
 # !! --- Might need to be updated to use a not local DB
-mongo_url = os.getenv('MONGOLAB_URI')
+mongo_url = 'mongodb://heroku_app34521350:nnfbrgeool1d3qkt3mv1qs8h54@ds039231.mongolab.com:39231/heroku_app34521350'
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
 
@@ -122,7 +122,7 @@ def api_languageslocations_get(sx0,sy0,sx1,sy1):
     except:
 		abort(400)
     results = helper_languageslocations_get(x0,y0,x1,y1)
-    return make_response(jsonify({'type':'LanguagesLocations','data':results}),200)
+    return make_response(jsonify({'type':'FeatureCollection','features':results}),200)
 
 @app.route('/words/<string:sw_longitude>/<string:sw_latitude>/<string:ne_longitude>/<string:ne_latitude>/<int:word_count>', methods = ['GET'])
 def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
