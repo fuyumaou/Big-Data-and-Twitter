@@ -35,19 +35,19 @@ def get_languages():
 # Function that verifies whether a tweet is within the rectangular area defined by:
 # longitudes x0, x1 and latitudes y0, y1.
 def is_in_rectangle_area(p,x0,y0,x1,y1):
-	try:
-		ok = True
-		if (x0<=x1):
-			ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
-		else:
-			ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
-		if (y0<=y1):
-			ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
-		else:
-			raise
-		return ok
-	except:
-		return False
+    try:
+        ok = True
+        if (x0<=x1):
+            ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
+        else:
+            ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
+        if (y0<=y1):
+            ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
+        else:
+            raise
+        return ok
+    except:
+        return False
 
 #----------------------------------------------------------------------------
 # Helper functions for GET Requests:
@@ -82,15 +82,38 @@ def helper_languageslocations_get(x0,y0,x1,y1):
         lang_tweets = languageCollection.find_one({'language':lang})
         for tweet in filter(lambda p: is_in_rectangle_area(p,x0,y0,x1,y1), lang_tweets['tweet']):
             results.append({
-				'type': 'Feature',
-				'properties': {
-					'language':lang
-				}, 'geometry': {
-					'type': 'Point',
-					'coordinates': [tweet['longitude'], tweet['latitude']]
-				}
-			})
+                'type': 'Feature',
+                'properties': {
+                    'language':lang
+                }, 'geometry': {
+                    'type': 'Point',
+                    'coordinates': [tweet['longitude'], tweet['latitude']]
+                }
+            })
     return results
+ 
+# helper_words_get
+# Input: sw_longitude, sw_latitude, ne_longitude, ne_latitude, words_count
+# Output: The List of the words_count pairs of most frequent words and their count for the given area
+def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
+    words = []
+    words_count = 0
+    for word_tweets in wordsCollection.find():
+        words_count += 1
+        word = word_tweets['word']
+        locations = word_tweets['tweet']
+        word_tweets = len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
+
+        if word_tweets > 0:
+            words.append({
+                'word': word,
+                'count': word_tweets
+            })
+
+    words.sort(key = lambda w: w['count'], reverse = True)
+
+    return words[:word_count]
+
 
 #----------------------------------------------------------------------------
 
@@ -107,7 +130,7 @@ def api_languages_get(sx0,sy0,sx1,sy1):
         x1 = float(sx1)
         y1 = float(sy1)
     except:
-		abort(400)
+        abort(400)
     results = helper_languages_get(x0,y0,x1,y1)
     return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
 
@@ -120,39 +143,22 @@ def api_languageslocations_get(sx0,sy0,sx1,sy1):
         x1 = float(sx1)
         y1 = float(sy1)
     except:
-		abort(400)
+        abort(400)
     results = helper_languageslocations_get(x0,y0,x1,y1)
     return make_response(jsonify({'type':'FeatureCollection','features':results}),200)
 
+# GET request for the first word_count meaningful words and their language in the rectangular area defined by sw_longitude, sw_latitude, ne_longitude, ne_latitude
 @app.route('/words/<string:sw_longitude>/<string:sw_latitude>/<string:ne_longitude>/<string:ne_latitude>/<int:word_count>', methods = ['GET'])
 def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
-	try:
-		sw_longitude = float(sw_longitude)
-		sw_latitude = float(sw_latitude)
-		ne_longitude = float(ne_longitude)
-		ne_latitude = float(ne_latitude)
-	except:
-		abort(400)
-
-	words = []
-	words_count = 0
-	for word_tweets in wordsCollection.find():
-		words_count += 1
-		word = word_tweets['word']
-		locations = word_tweets['tweet']
-		word_tweets = len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
-
-		if word_tweets > 0:
-			words.append({
-				'word': word,
-				'count': word_tweets
-			})
-
-	words.sort(key = lambda w: w['count'], reverse = True)
-
-	return make_response(jsonify({
-		'words': words[:word_count]
-	}))
+    try:
+        sw_longitude = float(sw_longitude)
+        sw_latitude = float(sw_latitude)
+        ne_longitude = float(ne_longitude)
+        ne_latitude = float(ne_latitude)
+    except:
+        abort(400)
+    results = helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count);
+    return make_response(jsonify({'words': results}), 200)
 
 #-----------------------------------------------------------------------------
 
