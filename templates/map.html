@@ -72,117 +72,167 @@
 
 	</body>
 	<script type="text/javascript">
-		input = document.getElementById('pac-input');
-		overlay = document.getElementById('overlay');
+		var input = document.getElementById('pac-input');
+		var overlay = document.getElementById('overlay');
 
-		var mapOptions = {
-			center: {
-				lat: 51.48,
-				lng: 0
-			}, zoom: 4,
-			disableDefaultUI: true
-		};
-		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		var initializeMap = function() {
 
-		flags = {
-			'en': 'http://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/40px-Flag_of_the_United_Kingdom.svg.png',
-			'fr': 'http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/30px-Flag_of_France.svg.png'
-		}
+			var styles = [
+				{
+					"featureType": "road",
+					"elementType": "geometry",
+					"stylers": [
+						{ "hue": "#cc00ff" },
+						{ "saturation": -74 },
+						{ "lightness": 23 }
+					]
+				},{
+					"featureType": "landscape",
+					"stylers": [
+						{ "saturation": -100 },
+						{ "lightness": 50 }
+					]
+				},{
+					"featureType": "poi",
+					"elementType": "geometry",
+					"stylers": [
+						{ "hue": "#55ff00" },
+						{ "saturation": 67 }
+					]
+				},{
+					"featureType": "transit",
+					"stylers": [
+						{ "visibility": "off" }
+					]
+				},{
+					"featureType": "water",
+					"stylers": [
+						{ "hue": "#0077ff" }
+					]
+				},{
+					"featureType": "road",
+					"elementType": "labels",
+					"stylers": [
+						{ "visibility": "off" }
+					]
+				},{
+					"featureType": "road.highway",
+					"stylers": [
+						{ "lightness": 21 }
+					]
+				}
+			];
 
-		map.data.loadGeoJson("/languageslocations/-180/-90/180/90")
-		
-		map.data.setStyle(function(feature) {
-			var lang = feature.getProperty('language');
-			var icon = "/static/img/dot.png";
-			if (lang in flags) {
-				icon = flags[lang];
-			}
-			return {
-				'icon': icon
+			var mapOptions = {
+				center: {
+					lat: 51.507222,
+					lng: -0.1275
+				}, zoom: 10,
+				disableDefaultUI: true,
+				styles: styles
 			};
-		});
 
-		lastBounds = false;
-		function updateLocation() {
-			//AJAX(map.getBounds().toString(),loadData)
-			//check its to the last time to avoid unnecessary loads
-			// could also ignore small changes
-			
-			if (lastBounds != map.getBounds()) {
-				lastBounds = map.getBounds();
-				sw = lastBounds.getSouthWest();
-				ne = lastBounds.getNorthEast();
+			var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-				$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(response) {
-					data = response.data;
-					// Sort by tweet count
-					data.sort(function(a, b) {
-						return b[1] - a[1];
-					});
+			map.data.loadGeoJson("/languageslocations/-180/-90/180/90")
 
-					tweetsCount = 0;
-					for (var i = 0; i < data.length; i++) {
-						tweetsCount += data[i][1];
-					}
+			var flags = {
+				"en": "/static/img/flag-en.png",
+				"fr": "/static/img/flag-fr.png"
+			}
 
-					var languageShareHtml = "";
-					for (var i = 0; i < data.length; i++) {
-						languageId = data[i][0];
-						languageTweetsCount = data[i][1];
-						languageTweetsShare = (languageTweetsCount * 100 / tweetsCount).toFixed(1);
+			map.data.setStyle( function(feature) {
+				var lang = feature.getProperty('language');
+				var icon = "/static/img/dot.png";
+				if (lang in flags) icon = flags[lang];
+				return { 'icon': icon };
+			});
 
-						var languageShareDisplay = " <img src=" + flags[languageId] + " alt=" + languageId + "></img>:" + languageTweetsShare + "%";
-						if (!(languageId in flags)) {
-							languageShareDisplay = " " + languageId + ": " + languageTweetsShare + "%";
+			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+			map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(overlay);
+
+			var lastBounds = false;
+			function updateLocation() {
+				//AJAX(map.getBounds().toString(),loadData)
+				//check its to the last time to avoid unnecessary loads
+				// could also ignore small changes
+
+				if (lastBounds != map.getBounds()) {
+					lastBounds = map.getBounds();
+					sw = lastBounds.getSouthWest();
+					ne = lastBounds.getNorthEast();
+
+					$.get("/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(), function(response) {
+						data = response.data;
+						// Sort by tweet count
+						data.sort(function(a, b) {
+							return b[1] - a[1];
+						});
+
+						tweetsCount = 0;
+						for (var i = 0; i < data.length; i++) {
+							tweetsCount += data[i][1];
 						}
 
-						languageShareHtml += languageShareDisplay;
-					}
-					$("#language").html(languageShareHtml);
-				});
+						var languageShareHtml = "";
+						for (var i = 0; i < data.length; i++) {
+							languageId = data[i][0];
+							languageTweetsCount = data[i][1];
+							languageTweetsShare = (languageTweetsCount * 100 / tweetsCount).toFixed(1);
 
-				$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function(response) {
-					var words = response.words;
-					var word_cloud = "";
-					for (var i = 0; i < words.length; i++) {
-						word_cloud += words[i].word + ": " + words[i].count + "; ";
-					}
-					$("#word-cloud").html(word_cloud);
-				});
+							var languageShareDisplay = " <img src=" + flags[languageId] + " alt=" +
+							languageId + "></img>:" + languageTweetsShare + "%";
+
+							if (!(languageId in flags)) {
+								languageShareDisplay = " " + languageId + ": " + languageTweetsShare + "%";
+							}
+
+							languageShareHtml += languageShareDisplay;
+						}
+						$("#language").html(languageShareHtml);
+					});
+
+					$.get("/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function(response) {
+						var words = response.words;
+						var word_cloud = "";
+						for (var i = 0; i < words.length; i++) {
+							word_cloud += words[i].word + ": " + words[i].count + "; ";
+						}
+						$("#word-cloud").html(word_cloud);
+					});
+				}
 			}
+
+			//updateLocation()
+			google.maps.event.addListener(map, 'bounds_changed', updateLocation)
+			//temporarily ignore the sheer number of requests that would get sent here
+
+			//Search box, code from https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
+
+			var autocomplete = new google.maps.places.Autocomplete(input);
+			autocomplete.bindTo('bounds', map);
+
+			var infowindow = new google.maps.InfoWindow();
+
+			google.maps.event.addListener(autocomplete, 'place_changed', function() {
+				infowindow.close();
+				var place = autocomplete.getPlace();
+				if (!place.geometry) {
+					return;
+				}
+
+				// If the place has a geometry, then present it on a map.
+				if (place.geometry.viewport) {
+					map.fitBounds(place.geometry.viewport);
+				} else {
+					map.setCenter(place.geometry.location);
+				}
+				map.setZoom(10);
+			});
+
 		}
 
+		google.maps.event.addDomListener(window, 'load', initializeMap);
 
-		//updateLocation()
-		google.maps.event.addListener(map, 'bounds_changed', updateLocation)
-		//temporarily ignore the sheer number of requests that would get sent here
-
-
-
-		//Search box, code from https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
-
-		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-		map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(overlay);
-
-		var autocomplete = new google.maps.places.Autocomplete(input);
-		autocomplete.bindTo('bounds', map);
-
-		var infowindow = new google.maps.InfoWindow();
-
-		google.maps.event.addListener(autocomplete, 'place_changed', function() {
-			infowindow.close();
-			var place = autocomplete.getPlace();
-			if (!place.geometry) {
-				return;
-			}
-
-			// If the place has a geometry, then present it on a map.
-			if (place.geometry.viewport) {
-				map.fitBounds(place.geometry.viewport);
-			} else {
-				map.setCenter(place.geometry.location);
-			}
-			map.setZoom(10);
-		});
 	</script>
 </html>

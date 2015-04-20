@@ -1,7 +1,6 @@
 #!env/bin/python
 from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
 import os
-import pymongo
 from pymongo import MongoClient
 
 app = Flask(__name__)
@@ -9,7 +8,7 @@ app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't s
 
 # Connecting to Mongo Client
 # !! --- Might need to be updated to use a not local DB
-mongo_url = os.getenv('MONGOLAB_URI') 
+mongo_url = os.getenv('MONGOLAB_URI')
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
 
@@ -91,7 +90,7 @@ def helper_languageslocations_get(x0,y0,x1,y1):
                 }
             })
     return results
- 
+
 # helper_words_get
 # Input: sw_longitude, sw_latitude, ne_longitude, ne_latitude, words_count
 # Output: The List of the words_count pairs of most frequent words and their count for the given area
