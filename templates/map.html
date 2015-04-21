@@ -47,7 +47,6 @@
 				position:absolute;
 				top:0px;
 				left:0px;
-				opacity: 0.5;
 				z-index:1;
 				pointer-events:none;
 			}
@@ -99,10 +98,19 @@
 
 		var canvas = document.getElementById( "circle-canvas" );
 		var ctx = canvas.getContext( "2d" );
-		ctx.beginPath();
+
 		var r = canvas.width/2;
+
+		ctx.beginPath();
+		ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.arc( r, r, r, 0, 2 * Math.PI );
 		ctx.fill();
+		
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = "rgb(255,255,255)";
+		ctx.beginPath();
+		ctx.arc( r, r, r, 0, 2 * Math.PI );
+		ctx.stroke();
 
 		$(document).on("mousemove", function(e){
 			$( "#circle-canvas" ).css({
