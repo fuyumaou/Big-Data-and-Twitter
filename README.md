@@ -3,6 +3,9 @@
 ### Project spec (currently a draft):
 https://docs.google.com/document/d/1Oz8P191NhYcW2F_nyWKXUU-yRKX1a-aY3NyEmdrjpIo/edit?usp=sharing
 
+### Project documentation (draft edition 1):
+https://docs.google.com/document/d/1NrZU_xuXRMMJrVGW8B9ThTsDS3oZhaSPztJd9-lmoLM/edit?usp=sharing
+
 ### Useful links
 * http://flask.pocoo.org
 * http://d3js.org
