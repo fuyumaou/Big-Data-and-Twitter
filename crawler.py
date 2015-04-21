@@ -76,7 +76,7 @@ if __name__ == '__main__':
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
 	# Old UK coords: -14.02,49.67,2.09,61.06
-	twitter_stream = twitter_api.request('statuses/filter', {'locations': '5.967,45.150,12.467,52.883'})# get tweets stream for Switzerland
+	twitter_stream = twitter_api.request('statuses/filter', {'locations': '5.955,45.818,10.507,47.810'})# get tweets stream for Switzerland
 	for tweet in twitter_stream:
 		if 'text' in tweet:
 			tweet_process(tweet, stopwords, mongo_db)
