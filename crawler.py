@@ -68,6 +68,14 @@ def read_stopwords():
 	lines = stopwords_file.readlines()
 	return [line.strip() for line in lines]
 
+def read_countries():
+	countries_file = open('countries')
+	lines = countries_file.readlines()
+	countries = {}
+	for line in lines:
+		words = line.rstrip().split(' ')
+		countries[words[0]] = ','.join(words[1:])
+	return countries
 
 if __name__ == '__main__':
 	mongo_url = os.getenv('MONGOLAB_URI')
@@ -75,6 +83,7 @@ if __name__ == '__main__':
 	mongo_db = mongo_client.get_default_database()
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
+	countries = read_countries()
 	# Old UK coords: -14.02,49.67,2.09,61.06
 	twitter_stream = twitter_api.request('statuses/filter', {'locations': '5.955,45.818,10.507,47.810'})# get tweets stream for Switzerland
 	for tweet in twitter_stream:
