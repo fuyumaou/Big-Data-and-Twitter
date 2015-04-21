@@ -37,6 +37,7 @@ def tweet_process(tweet, stopwords, mongo_db):
 	tweet_words_filtered = filter(lambda w: len(w) > 3 and w not in stopwords, map(lambda w: w.lower(), tweet_words))
 	tweet_geolocation = tweet_get_geolocation(tweet)
 	tweet_language = tweet['lang']
+	print(tweet_language);print(tweet_text_dirty);print('\n');
 
 	mongo_db_languages = mongo_db['languages']
 	if tweet_language != 'und' and tweet_geolocation is not None:
@@ -74,7 +75,8 @@ if __name__ == '__main__':
 	mongo_db = mongo_client.get_default_database()
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
-	twitter_stream = twitter_api.request('statuses/filter', {'locations': '-14.02,49.67,2.09,61.06'}) # get tweets stream for UK
+	# Old UK coords: -14.02,49.67,2.09,61.06
+	twitter_stream = twitter_api.request('statuses/filter', {'locations': '5.967,45.150,12.467,52.883'})# get tweets stream for Switzerland
 	for tweet in twitter_stream:
 		if 'text' in tweet:
 			tweet_process(tweet, stopwords, mongo_db)

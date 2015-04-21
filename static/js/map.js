@@ -50,9 +50,9 @@ var initializeMap = function() {
 
 	var mapOptions = {
 		center: {
-			lat: 51.507222,
-			lng: -0.1275
-		}, zoom: 10,
+			lat: 46.78003, //51.507222,
+			lng: 7.96637 //-0.1275
+		}, zoom: 8,
 		disableDefaultUI: true,
 		styles: styles
 	};
@@ -63,7 +63,10 @@ var initializeMap = function() {
 
 	var flags = {
 		"en": "/static/img/flag-en.png",
-		"fr": "/static/img/flag-fr.png"
+		"fr": "/static/img/flag-fr.png",
+		"es": "/static/img/flag-es.png",
+		"de": "/static/img/flag-de.png",
+		"it": "/static/img/flag-it.png"
 	};
 
 	map.data.setStyle( function( feature ) {
