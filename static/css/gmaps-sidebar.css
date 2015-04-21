@@ -22,7 +22,7 @@
       width: 390px; } }
   @media (min-width: 1200px) {
     .sidebar {
-      width: 460px; } }
+      width: 250px; } }
 
 .sidebar-tabs {
   position: absolute;

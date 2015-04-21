@@ -1,5 +1,4 @@
 var input = document.getElementById( "pac-input" );
-var overlay = document.getElementById( "overlay" );
 
 var initializeMap = function() {
 
@@ -75,61 +74,63 @@ var initializeMap = function() {
 	} );
 
 	map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
-	map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push( overlay );
 
 	var lastBounds = false;
 	var updateLocation = function() {
 
-		//AJAX(map.getBounds().toString(),loadData)
-		//check its to the last time to avoid unnecessary loads
+		// AJAX(map.getBounds().toString(),loadData)
+		// check its to the last time to avoid unnecessary loads
 		// could also ignore small changes
 
+		// do we need this check? it's only called after a "bounds_changed" event...
 		if ( lastBounds != map.getBounds() ) {
 			lastBounds = map.getBounds();
-			sw = lastBounds.getSouthWest();
-			ne = lastBounds.getNorthEast();
+			var sw = lastBounds.getSouthWest();
+			var ne = lastBounds.getNorthEast();
 
 			$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
-							function( response ) {
-				data = response.data;
+			function( response ) {
+				var data = response.data;
 
 				// Sort by tweet count
 				data.sort( function( a, b ) {
 					return b[1] - a[1];
 				} );
 
-				tweetsCount = 0;
+				var tweetCount = 0;
 				for ( var i = 0; i < data.length; i++ ) {
-					tweetsCount += data[i][1];
+					tweetCount += data[i][1];
 				}
 
 				var languageShareHtml = "";
 				for ( i = 0; i < data.length; i++ ) {
-					languageId = data[i][0];
-					languageTweetsCount = data[i][1];
-					languageTweetsShare = ( languageTweetsCount * 100 / tweetsCount ).toFixed( 1 );
+					var languageId = data[i][0];
+					var languageTweetCount = data[i][1];
+					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
-					var languageShareDisplay = " <img src=" + flags[languageId] + " alt=" +
-					languageId + "></img>:" + languageTweetsShare + "%";
+					var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
+								languageId + "></img>:" + languageTweetShare + "%</div>\n";
 
 					if ( !( languageId in flags ) ) {
-						languageShareDisplay = " " + languageId + ": " + languageTweetsShare + "%";
+						languageShareDisplay = "<div>" + languageId + ": " + languageTweetShare +
+							"%</div>\n";
 					}
 
 					languageShareHtml += languageShareDisplay;
 				}
-				$( "#language" ).html( languageShareHtml );
+				$( "#languages" ).html( languageShareHtml );
 			} );
 
 			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",
 							function( response ) {
 				var words = response.words;
-				var wordCloud = "";
+				var wordCloudHtml = "";
 				for ( var i = 0; i < words.length; i++ ) {
-					wordCloud += words[i].word + ": " + words[i].count + "; ";
+					wordCloudHtml += "<div>" +  words[i].word + ": " + words[i].count + "</div>\n";
 				}
-				$( "#word-cloud" ).html( wordCloud );
+				$( "#wordcloud" ).html( wordCloudHtml );
 			} );
+
 		}
 	};
 
@@ -160,8 +161,6 @@ var initializeMap = function() {
 		}
 		map.setZoom( 10 );
 	} );
-
-	var sidebar = $( "#sidebar" ).sidebar();
 
 };
 

@@ -19,11 +19,12 @@ wordsCollection = mongo_db['words']
 #----------------------------------------------------------------------------
 # Language Visualisation specific helper functions:
 
+# can we avoid calling this too often? surely language_list won't change much?
 # get_languages
 # Function that retrieves the list of languages to be queried on, built using data from DB
 def get_languages():
     language_list=[]
-    for lang_tweets in languageCollection.find():
+    for lang_tweets in languageCollection.find(): # .find() is quite expensive
         language_list.append(lang_tweets['language'])
     return language_list
 
