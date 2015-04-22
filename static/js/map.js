@@ -50,16 +50,14 @@ var initializeMap = function() {
 
 	var mapOptions = {
 		center: {
-			lat: 46.78003, //51.507222,
-			lng: 7.96637 //-0.1275
+			lat: 46.78003,
+			lng: 7.96637
 		}, zoom: 8,
 		disableDefaultUI: true,
 		styles: styles
 	};
 
 	var map = new google.maps.Map( document.getElementById( "map-canvas" ), mapOptions );
-
-	map.data.loadGeoJson( "/languageslocations/-180/-90/180/90" );
 
 	var flags = {
 		"en": "/static/img/flag-en.png",
@@ -69,14 +67,21 @@ var initializeMap = function() {
 		"it": "/static/img/flag-it.png"
 	};
 
-	map.data.setStyle( function( feature ) {
-		var lang = feature.getProperty( "language" );
-		var icon = "/static/img/dot.png";
-		if ( lang in flags ) { icon = flags[lang]; }
-		return { "icon": icon };
+	// more verbose than loadGeoJson() but means we can use the response later if needed
+	$.get( "/languageslocations/-180/-90/180/90", function( response ) {
+		map.data.addGeoJson( response );
+
+		map.data.setStyle( function( feature ) {
+			var lang = feature.getProperty( "language" );
+			var icon = "/static/img/dot.png";
+			if ( lang in flags ) { icon = flags[lang]; }
+			return { "icon": icon };
+		} );
 	} );
 
 	map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
+
+	var circle = $( "circle-canvas" ).circle();
 
 	var lastBounds = false;
 	var updateLocation = function() {
@@ -105,6 +110,9 @@ var initializeMap = function() {
 					tweetCount += data[i][1];
 				}
 
+				var maxCircleSegs = 7;
+				var circlePortions = new Array( maxCircleSegs + 1 );
+
 				var languageShareHtml = "";
 				for ( i = 0; i < data.length; i++ ) {
 					var languageId = data[i][0];
@@ -120,8 +128,17 @@ var initializeMap = function() {
 					}
 
 					languageShareHtml += languageShareDisplay;
+
+					if ( i < maxCircleSegs ) {
+						circlePortions[i] = languageTweetShare;
+					}
 				}
 				$( "#languages" ).html( languageShareHtml );
+
+				var others = 100;
+				for ( i = 0; i < maxCircleSegs; i++ ) { others -= circlePortions[i]; }
+				circlePortions[maxCircleSegs] = others;
+				circle.drawLangaugeSegments( circlePortions );
 			} );
 
 			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",

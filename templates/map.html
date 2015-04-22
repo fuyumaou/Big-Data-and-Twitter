@@ -88,39 +88,18 @@
 		</div>
 
 		<div id="map-canvas"></div>
-		<canvas id="circle-canvas" width="320px" height="320px"></canvas>
+		<canvas id="circle-canvas" width="360px" height="360px"></canvas>
 
 	<script src="https://maps.googleapis.com/maps/api/js?v=3&libraries=places"></script>
 	<script type="text/javascript" src="static/js/jquery-2.1.3.min.js"></script>
 	<script type="text/javascript" src="static/js/jquery-sidebar.js"></script>
+	<script type="text/javascript" src="static/js/circle.js"></script>
 	<script type="text/javascript" src="static/js/map.js"></script>
 	<script type="text/javascript">
 		var sidebar = $( "#sidebar" ).sidebar();
 		sidebar.open( "language-info", $( "#language-info" ) );
-
-		var circleCanvas = document.getElementById( "circle-canvas" );
-		var ctx = circleCanvas.getContext( "2d" );
-
-		var c = circleCanvas.width / 2;
-		var r = (circleCanvas.width - 20) / 2; // allows for 10px buffer around circle
-
-		ctx.beginPath();
-		ctx.fillStyle = "rgba( 0, 0, 0, 0.25 )";
-    ctx.arc( c, c, r, 0, 2 * Math.PI );
-		ctx.fill();
-
-		ctx.lineWidth = 4;
-		ctx.strokeStyle = "rgb( 255, 255, 255 )";
-		ctx.beginPath();
-		ctx.arc( c, c, r, 0, 2 * Math.PI );
-		ctx.stroke();
-
-		$( document ).on( "mousemove", function( e ){
-			$( "#circle-canvas" ).css({
-				left:  e.pageX - c,
-				top:   e.pageY - c
-			} );
-		} );
+		var circle = $( "#circle-canvas" ).circle();
+		circle.drawLangaugeSegments( [30,25,20,15,10] );
 	</script>
 	</body>
 </html>
