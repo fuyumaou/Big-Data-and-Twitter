@@ -87,11 +87,20 @@ var initializeMap = function() {
 	var updateLocation = function() {
 
 		// AJAX(map.getBounds().toString(),loadData)
-		// check its to the last time to avoid unnecessary loads
-		// could also ignore small changes
-
-		// do we need this check? it's only called after a "bounds_changed" event...
-		if ( lastBounds != map.getBounds() ) {
+		
+		change=0.05//ignore changes smaller than 5%
+		var update=true
+		var bounds = map.getBounds();
+		if(lastBounds){
+			var width=lastBounds.getSouthWest().lng()-lastBounds.getNorthEast().lng()
+			var height=lastBounds.getSouthWest().lat()-lastBounds.getNorthEast().lat()
+			update=Math.abs((lastBounds.getSouthWest().lng()-bounds.getSouthWest().lng())/width)>change ||
+			       Math.abs((lastBounds.getNorthEast().lng()-bounds.getNorthEast().lng())/width)>change ||
+			       Math.abs((lastBounds.getSouthWest().lat()-bounds.getSouthWest().lat())/height)>change ||
+			       Math.abs((lastBounds.getNorthEast().lat()-bounds.getNorthEast().lat())/height)>change
+		}
+		
+		if ( update ) {
 			lastBounds = map.getBounds();
 			var sw = lastBounds.getSouthWest();
 			var ne = lastBounds.getNorthEast();
