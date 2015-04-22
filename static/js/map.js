@@ -120,7 +120,7 @@ var initializeMap = function() {
 					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
 					var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
-								languageId + "></img>:" + languageTweetShare + "%</div>\n";
+								languageId + "></img>: " + languageTweetShare + "%</div>\n";
 
 					if ( !( languageId in flags ) ) {
 						languageShareDisplay = "<div>" + languageId + ": " + languageTweetShare +

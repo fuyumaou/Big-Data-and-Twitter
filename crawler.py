@@ -37,7 +37,7 @@ def tweet_process(tweet, stopwords, mongo_db):
 	tweet_words_filtered = filter(lambda w: len(w) > 3 and w not in stopwords, map(lambda w: w.lower(), tweet_words))
 	tweet_geolocation = tweet_get_geolocation(tweet)
 	tweet_language = tweet['lang']
-	print(tweet_language);print(tweet_text_dirty);print('\n');
+	print(tweet_language);print(tweet_text_dirty);print;
 
 	mongo_db_languages = mongo_db['languages']
 	if tweet_language != 'und' and tweet_geolocation is not None:
