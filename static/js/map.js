@@ -87,19 +87,20 @@ var initializeMap = function() {
 	var updateLocation = function() {
 
 		// AJAX(map.getBounds().toString(),loadData)
-		
-		change=0.05//ignore changes smaller than 5%
-		var update=true
+
+		// ignore changes smaller than 5%
+		change = 0.05;
+		var update = true;
 		var bounds = map.getBounds();
-		if(lastBounds){
-			var width=lastBounds.getSouthWest().lng()-lastBounds.getNorthEast().lng()
-			var height=lastBounds.getSouthWest().lat()-lastBounds.getNorthEast().lat()
-			update=Math.abs((lastBounds.getSouthWest().lng()-bounds.getSouthWest().lng())/width)>change ||
-			       Math.abs((lastBounds.getNorthEast().lng()-bounds.getNorthEast().lng())/width)>change ||
-			       Math.abs((lastBounds.getSouthWest().lat()-bounds.getSouthWest().lat())/height)>change ||
-			       Math.abs((lastBounds.getNorthEast().lat()-bounds.getNorthEast().lat())/height)>change
+		if ( lastBounds ) {
+			var width = lastBounds.getSouthWest().lng() - lastBounds.getNorthEast().lng();
+			var height = lastBounds.getSouthWest().lat() - lastBounds.getNorthEast().lat();
+			update = Math.abs( ( lastBounds.getSouthWest().lng() - bounds.getSouthWest().lng() ) / width ) > change ||
+							 Math.abs( ( lastBounds.getNorthEast().lng() - bounds.getNorthEast().lng() ) / width ) > change ||
+							 Math.abs( ( lastBounds.getSouthWest().lat() - bounds.getSouthWest().lat() ) / height ) > change ||
+							 Math.abs( ( lastBounds.getNorthEast().lat() - bounds.getNorthEast().lat() ) / height ) > change
 		}
-		
+
 		if ( update ) {
 			lastBounds = map.getBounds();
 			var sw = lastBounds.getSouthWest();
@@ -119,8 +120,10 @@ var initializeMap = function() {
 					tweetCount += data[i][1];
 				}
 
+				// # of segs not including "other"
 				var maxCircleSegs = 7;
-				var circlePortions = new Array( maxCircleSegs + 1 );
+				var circlePortions = [];
+				var otherShare = 0;
 
 				var languageShareHtml = "";
 				for ( i = 0; i < data.length; i++ ) {
@@ -139,15 +142,18 @@ var initializeMap = function() {
 					languageShareHtml += languageShareDisplay;
 
 					if ( i < maxCircleSegs ) {
-						circlePortions[i] = languageTweetShare;
+						circlePortions.push( parseFloat( languageTweetShare ) );
+					} else {
+						otherShare += parseFloat( languageTweetShare );
 					}
 				}
 				$( "#languages" ).html( languageShareHtml );
-
-				var others = 100;
-				for ( i = 0; i < maxCircleSegs; i++ ) { others -= circlePortions[i]; }
-				circlePortions[maxCircleSegs] = others;
-				circle.drawLangaugeSegments( circlePortions );
+				if ( otherShare > 0 ) {
+					circlePortions.push( otherShare );
+					circle.drawLangaugeSegments( circlePortions, true );
+				} else {
+					circle.drawLangaugeSegments( circlePortions, false );
+				}
 			} );
 
 			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",
@@ -155,7 +161,7 @@ var initializeMap = function() {
 				var words = response.words;
 				var wordCloudHtml = "";
 				for ( var i = 0; i < words.length; i++ ) {
-					wordCloudHtml += "<div>" +  words[i].word + ": " + words[i].count + "</div>\n";
+					wordCloudHtml += "<div>" +	words[i].word + ": " + words[i].count + "</div>\n";
 				}
 				$( "#wordcloud" ).html( wordCloudHtml );
 			} );
