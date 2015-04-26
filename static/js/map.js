@@ -79,7 +79,7 @@ var initializeMap = function() {
 		} );
 	} );
 
-	map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
+	//map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
 
 	var circle = $( "circle-canvas" ).circle();
 
