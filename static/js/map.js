@@ -121,34 +121,39 @@ var initializeMap = function() {
 				}
 
 				// # of segs not including "other"
-				var maxCircleSegs = 7;
 				var circlePortions = [];
-				var otherShare = 0;
+				var otherShare = 100;
+				var minShareSize = 1;
+				var shareLargeEnough = true;
 
 				var languageShareHtml = "";
-				for ( i = 0; i < data.length; i++ ) {
+				i = 0;
+				while ( shareLargeEnough ) {
 					var languageId = data[i][0];
 					var languageTweetCount = data[i][1];
 					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
-					var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
-								languageId + "></img>: " + languageTweetShare + "%</div>\n";
-
-					if ( !( languageId in flags ) ) {
-						languageShareDisplay = "<div>" + languageId + ": " + languageTweetShare +
-							"%</div>\n";
-					}
-
-					languageShareHtml += languageShareDisplay;
-
-					if ( i < maxCircleSegs ) {
-						circlePortions.push( parseFloat( languageTweetShare ) );
+					if ( languageTweetShare < minShareSize ) {
+						shareLargeEnough = false;
 					} else {
-						otherShare += parseFloat( languageTweetShare );
+						var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
+									languageId + "></img>: " + languageTweetShare + "%</div>\n";
+
+						if ( !( languageId in flags ) ) {
+							languageShareDisplay = "<div>" + languageId + ": " + languageTweetShare +
+								"%</div>\n";
+						}
+
+						languageShareHtml += languageShareDisplay;
+
+						circlePortions.push( parseFloat( languageTweetShare ) );
+						otherShare -= parseFloat( languageTweetShare );
 					}
+
+					i++;
 				}
 				$( "#languages" ).html( languageShareHtml );
-				if ( otherShare > 0 ) {
+				if ( otherShare > 1 ) {
 					circlePortions.push( otherShare );
 					circle.drawLangaugeSegments( circlePortions, true );
 				} else {

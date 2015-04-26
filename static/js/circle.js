@@ -54,7 +54,7 @@ $.fn.circle = function() {
 		var numOfSegs = circlePortions.length;
 		var gap = LINE_GAP * 2 * Math.PI / 360;
 
-		if (circlePortions.length === 0 ) {
+		if ( circlePortions.length === 0 ) {
 			ctx.strokeStyle = NO_DATA_STYLE;
 			ctx.beginPath();
 			ctx.arc( c, c, r, 0, 2 * Math.PI );
