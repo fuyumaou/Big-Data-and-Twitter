@@ -42,6 +42,12 @@
 			// Draws placeholder segments while loading from db
 			var circle = $( "#circle-canvas" ).circle();
 			circle.drawLangaugeSegments( [30,25,20,15,10] );
+			$( "#sidebar" ).on( "mouseover", function(e) {
+				$( "#circle-canvas" ).hide();
+			} );
+			$( "#sidebar" ).on( "mouseleave", function(e) {
+				$( "#circle-canvas" ).show();
+			} );
 		</script>
 	</body>
 </html>
