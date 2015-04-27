@@ -8,89 +8,7 @@
 		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 		<link href='http://fonts.googleapis.com/css?family=Oxygen:700,400,300' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="static/css/gmaps-sidebar.css" />
-		<style type="text/css">
-			html, body {
-				height: 100%;
-				margin: 0;
-				padding: 0;
-				font-family: 'Oxygen', sans-serif;
-			}
-
-			* {
-				-webkit-box-sizing: border-box;
-				   -moz-box-sizing: border-box;
-				        box-sizing: border-box;
-			}
-
-			#header {
-				position: relative;
-				width: 100%;
-				height: 50px;
-				/*background-color: rgb(74, 208, 66);*/
-				background-color: rgb(200,200,200);
-				z-index: 3;
-				box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
-			}
-
-			.content {
-				position: absolute;
-				height: 100%;
-				width: 100%;
-				margin-bottom: -50px;
-			}
-
-			#sidebar {
-				overflow: scroll;
-				width: 230px;
-				padding: 1em;
-				background-color: rgba( 255, 255, 255, 0.8);
-				box-shadow: 2px 0px 10px rgba(0,0,0,0.2);
-				z-index: 2;
-			}
-
-			.controls {
-				margin-top: 16px;
-				border: 1px solid transparent;
-				border-radius: 2px 0 0 2px;
-				box-sizing: border-box;
-				-moz-box-sizing: border-box;
-				outline: none;
-				box-shadow: inset 0 0px 15px rgba(0, 0, 0, 0.1);
-			}
-
-			#pac-input {
-				background-color: #fff;
-				font-family: Roboto;
-				font-size: 15px;
-				font-weight: 300;
-				margin-right: 12px;
-				padding: 0 11px 0 13px;
-				text-overflow: ellipsis;
-				width: 400px;
-				float: right;
-				border-radius: 8px;
-			}
-
-			#pac-input:focus {
-				border-color: #4d90fe;
-			}
-
-			.pac-container {
-				font-family: Roboto;
-			}
-
-			#circle-canvas {
-				position:absolute;
-				top:0px;
-				left:0px;
-				z-index:1;
-				pointer-events:none;
-			}
-
-			img {
-				vertical-align: middle;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="static/css/style.css"></style>
 		<!--<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ1QG7SEdSi66Tr0IE5ehHUpnoAbEQcnE">
 		</script>-->
@@ -98,6 +16,11 @@
 
 	<body>
 		<div id="header">
+			<ul id="menu">
+				<li id="places-tab">Places</li>
+				<li id="languages-tab" class="selected">Languages</li>
+				<li id="about-tab">About</li>
+			</ul>
 			<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 		</div>
 		<div id="map-canvas" class="content"></div>
