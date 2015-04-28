@@ -26,27 +26,6 @@ def get_language_list():
 	return languageCollection.distinct('language')
 
 #----------------------------------------------------------------------------
-# More general helper functions:
-
-# is_in_rectangle_area
-# Function that verifies whether a tweet is within the rectangular area defined by:
-# longitudes x0, x1 and latitudes y0, y1.
-def is_in_rectangle_area(p,x0,y0,x1,y1):
-	try:
-		ok = True
-		if (x0<=x1):
-			ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
-		else:
-			ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
-		if (y0<=y1):
-			ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
-		else:
-			raise
-		return ok
-	except:
-		return False
-
-#----------------------------------------------------------------------------
 # Helper functions for GET Requests:
 
 # helper_language_tweets_count
