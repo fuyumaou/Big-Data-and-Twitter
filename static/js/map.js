@@ -53,6 +53,7 @@ var initializeMap = function() {
 			lat: 46.78003,
 			lng: 7.96637
 		}, zoom: 8,
+		minZoom: 4,
 		disableDefaultUI: true,
 		styles: styles
 	};
@@ -67,8 +68,8 @@ var initializeMap = function() {
 		"it": "/static/img/flag-it.png"
 	};
 
-	// more verbose than loadGeoJson() but means we can use the response later if needed
-	$.get( "/languageslocations/-180/-90/180/90", function( response ) {
+	// Leaving this here for nostalgia & in case the new way is too slow
+	/* $.get( "/languageslocations/-180/-90/180/90", function( response ) {
 		map.data.addGeoJson( response );
 
 		map.data.setStyle( function( feature ) {
@@ -77,7 +78,7 @@ var initializeMap = function() {
 			if ( lang in flags ) { icon = flags[lang]; }
 			return { "icon": icon };
 		} );
-	} );
+	} ); */
 
 	//map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
 
@@ -102,9 +103,37 @@ var initializeMap = function() {
 		}
 
 		if ( update ) {
-			lastBounds = map.getBounds();
-			var sw = lastBounds.getSouthWest();
-			var ne = lastBounds.getNorthEast();
+			var sw = bounds.getSouthWest();
+			var ne = bounds.getNorthEast();
+
+			// create a closure so that when the server replies we use the right lastBounds, bounds etc.
+			( function( lastBounds, bounds, sw, ne ) {
+			$.get( "/languageslocations/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
+			function( response ) {
+
+				// Only add features that weren't in lastBounds (ie new ones)
+				var filteredFeatures = response.features.filter( function( feature ) {
+					var coords = feature.geometry.coordinates;
+					var featureLatLng = new google.maps.LatLng( coords[1], coords[0] );
+					return lastBounds ? !lastBounds.contains( featureLatLng ) : true;
+				} );
+				var filteredResponse = { "type": "FeatureCollection", "features": filteredFeatures };
+				map.data.addGeoJson( filteredResponse );
+
+				// Remove all feautures which aren't on the screen
+				map.data.forEach( function( feature ) {
+					var featureLatLng = feature.getGeometry().get();
+					if ( !bounds.contains( featureLatLng ) ) {
+						map.data.remove( feature );
+					}
+				} );
+				map.data.setStyle( function( feature ) {
+					var lang = feature.getProperty( "language" );
+					var icon = "/static/img/dot.png";
+					if ( lang in flags ) { icon = flags[lang]; }
+					return { "icon": icon };
+				} );
+			} ); } )( lastBounds, bounds, sw, ne );
 
 			$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
 			function( response ) {
@@ -127,12 +156,12 @@ var initializeMap = function() {
 				var shareLargeEnough = true;
 
 				var languageShareHtml = "";
-				for (var i = 0; i < data.length; i++) {
+				for ( i = 0; i < data.length; i++ ) {
 					var languageId = data[i][0];
 					var languageTweetCount = data[i][1];
 					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
-					if (languageTweetShare >= minShareSize) {
+					if ( languageTweetShare >= minShareSize ) {
 						var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
 									languageId + "></img>: " + languageTweetShare + "%</div>\n";
 
@@ -166,7 +195,9 @@ var initializeMap = function() {
 				$( "#wordcloud" ).html( wordCloudHtml );
 			} );
 
+			lastBounds = bounds;
 		}
+
 	};
 
 	//updateLocation()
