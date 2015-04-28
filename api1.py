@@ -7,7 +7,6 @@ app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
 
 # Connecting to Mongo Client
-# !! --- Might need to be updated to use a not local DB
 mongo_url = os.getenv('MONGOLAB_URI')
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
@@ -29,8 +28,6 @@ def get_language_list():
 # Helper functions for GET Requests:
 
 # helper_language_tweets_count
-# !! --- to be changed to use querying instead of len+filter
-# !! --- querying might not be possible ?
 # Input: x0, y0, x1, y1 --- 4 coordinates (west,south,east,north)
 # Output: A List of Records of type {language, number} where number is the number
 #	   of tweets in the respective language in the defined rectangular area
@@ -52,8 +49,6 @@ def helper_language_tweets_count(x0, y0, x1, y1):
 	return results
 
 # helper_language_tweet_locations
-# !! --- to be changed to use querying instead of filter
-# !! --- querying might not be possible ?
 # !! --- the naming of this uses geoJSON convention so that it can be used very easily used by google maps(Toby)
 # Input: x0, y0, x1, y1 --- 4 coordinates
 # Output: A List of Records of type {type, properties:{language}, geometry: {type,coordinates}}
@@ -103,8 +98,6 @@ def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_
 #----------------------------------------------------------------------------
 
 # GET request for the languages in the rectangular area x0, y0, x1, y1
-# ! --- may be worth passing parameters as part of a query string rather than as distinct urls
-# ! --- e.g. /languages?x0=0&x1=2&y0=0&y1=1
 @app.route('/languages/<string:sx0>/<string:sy0>/<string:sx1>/<string:sy1>', methods = ['GET'])
 def api_languages_get(sx0,sy0,sx1,sy1):
 	try:

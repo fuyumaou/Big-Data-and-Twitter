@@ -16,4 +16,4 @@ newLanguageCollection = mongo_db['languages0']
 for lang in oldLanguageCollection.find():
     tweets = lang['tweet']
     for tw in tweets:
-        newLanguageCollection.insert({'language':lang['language'],'tweet':[tw['longitude'],tw['latitude']]})
+        newLanguageCollection.insert({'language':lang['language'],'location':[tw['longitude'],tw['latitude']]})
