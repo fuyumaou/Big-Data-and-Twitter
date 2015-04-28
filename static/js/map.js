@@ -150,7 +150,7 @@ var initializeMap = function() {
 				}
 				console.log(languageShareHtml);
 				$( "#languages" ).html( languageShareHtml );
-				if ( otherShare > 1 ) {
+				if ( otherShare > 1 && otherShare < 100 ) {
 					circlePortions.push( otherShare );
 					circle.drawLangaugeSegments( circlePortions, true );
 				} else {
