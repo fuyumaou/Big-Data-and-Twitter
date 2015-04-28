@@ -7,7 +7,6 @@ app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
 
 # Connecting to Mongo Client
-# !! --- Might need to be updated to use a not local DB
 mongo_url = os.getenv('MONGOLAB_URI')
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()

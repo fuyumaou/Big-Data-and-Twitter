@@ -7,7 +7,6 @@ app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
 
 # Connecting to Mongo Client
-# !! --- Might need to be updated to use a not local DB
 mongo_url = os.getenv('MONGOLAB_URI')
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
@@ -26,32 +25,9 @@ def get_language_list():
 	return languageCollection.distinct('language')
 
 #----------------------------------------------------------------------------
-# More general helper functions:
-
-# is_in_rectangle_area
-# Function that verifies whether a tweet is within the rectangular area defined by:
-# longitudes x0, x1 and latitudes y0, y1.
-def is_in_rectangle_area(p,x0,y0,x1,y1):
-	try:
-		ok = True
-		if (x0<=x1):
-			ok = (x0 <= p['longitude'] and p['longitude'] <= x1)
-		else:
-			ok = (x0 <= p['longitude'] or p['longitude'] <= x1)
-		if (y0<=y1):
-			ok = ok and (y0 <= p['latitude'] and p['latitude'] <= y1)
-		else:
-			raise
-		return ok
-	except:
-		return False
-
-#----------------------------------------------------------------------------
 # Helper functions for GET Requests:
 
 # helper_language_tweets_count
-# !! --- to be changed to use querying instead of len+filter
-# !! --- querying might not be possible ?
 # Input: x0, y0, x1, y1 --- 4 coordinates (west,south,east,north)
 # Output: A List of Records of type {language, number} where number is the number
 #	   of tweets in the respective language in the defined rectangular area
@@ -73,26 +49,22 @@ def helper_language_tweets_count(x0, y0, x1, y1):
 	return results
 
 # helper_language_tweet_locations
-# !! --- to be changed to use querying instead of filter
-# !! --- querying might not be possible ?
 # !! --- the naming of this uses geoJSON convention so that it can be used very easily used by google maps(Toby)
 # Input: x0, y0, x1, y1 --- 4 coordinates
 # Output: A List of Records of type {type, properties:{language}, geometry: {type,coordinates}}
 #		   that correspond to tweets, their languages and their locations that can be found in the rectangular area x0,y0,x1,y1
 def helper_language_tweet_locations(x0,y0,x1,y1):
-	languages = get_language_list()
 	results = []
-	for lang in languages:
-		for tweet in languageCollection.find({'location':{'$within':{'$box': [[x0,y0],[x1,y1]]}},'language':lang}):
-			results.append({
-				'type': 'Feature',
-				'properties': {
-					'language':lang
-				}, 'geometry': {
-					'type': 'Point',
-					'coordinates': [tweet['location'][0], tweet['location'][1]]
-				}
-			})
+	for tweet in languageCollection.find({'location':{'$within':{'$box': [[x0,y0],[x1,y1]]}}}):
+		results.append({
+			'type': 'Feature',
+			'properties': {
+				'language':tweet['language']
+			}, 'geometry': {
+				'type': 'Point',
+				'coordinates': tweet['location']
+			}
+		})
 	return results
 
 # helper_words_get
@@ -102,16 +74,15 @@ def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_
 	words = {}
 	for tweet in wordsCollection.find({'location':{'$within':{'$box': [[sw_longitude, sw_latitude],[ne_longitude, ne_latitude]]}}}):
 		word = tweet['word']
-		location = tweet['location']
 		if word not in words:
-			words[word] = []
-		words[word].append(location)
+			words[word] = 0
+		words[word]+=1
 
 	word_list = []
 	for word in words:
 		word_list.append({
 			'word': word,
-			'count': len(words[word])
+			'count': words[word]
 		})
 
 	word_list.sort(key = lambda w: w['count'], reverse = True)
@@ -124,8 +95,6 @@ def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_
 #----------------------------------------------------------------------------
 
 # GET request for the languages in the rectangular area x0, y0, x1, y1
-# ! --- may be worth passing parameters as part of a query string rather than as distinct urls
-# ! --- e.g. /languages?x0=0&x1=2&y0=0&y1=1
 @app.route('/languages/<string:sx0>/<string:sy0>/<string:sx1>/<string:sy1>', methods = ['GET'])
 def api_languages_get(sx0,sy0,sx1,sy1):
 	try:
