@@ -7,7 +7,7 @@
 		(todo: get an icon)-->
 		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 		<link href='http://fonts.googleapis.com/css?family=Oxygen:700,400,300' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="static/css/gmaps-sidebar.css" />
+		<!--link rel="stylesheet" href="static/css/gmaps-sidebar.css" /-->
 		<link rel="stylesheet" type="text/css" href="static/css/style.css"></style>
 		<!--<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ1QG7SEdSi66Tr0IE5ehHUpnoAbEQcnE">
@@ -17,36 +17,60 @@
 	<body>
 		<div id="header">
 			<ul id="menu">
-				<li id="places-tab">Places</li>
-				<li id="languages-tab" class="selected">Languages</li>
-				<li id="about-tab">About</li>
+				<li id="places-tab" class="tab">Places</li>
+				<li id="languages-tab" class="selected tab">Languages</li>
+				<li id="about-tab" class="tab">About</li>
 			</ul>
 			<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 		</div>
 		<div id="map-canvas" class="content"></div>
 
 		<div id="sidebar" class="content">
-			<h1>Languages</h1>
-			<div id="languages">Loading...</div>
-			<h1>Word Cloud</h1>
-			<div id="wordcloud">Loading...</div>
+			<div id="places-page" class="sidebar-page">
+				Places page.
+			</div>
+			<div id="languages-page" class="selected sidebar-page">
+				<h1>Languages</h1>
+				<div id="languages">Loading...</div>
+				<h1>Word Cloud</h1>
+				<div id="wordcloud">Loading...</div>
+			</div>
+			<div id="about-page" class="sidebar-page">
+				About page.
+			</div>
 		</div>
 		<canvas id="circle-canvas" width="360px" height="360px"></canvas>
 
 		<script src="https://maps.googleapis.com/maps/api/js?v=3&libraries=places"></script>
 		<script type="text/javascript" src="static/js/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="static/js/jquery-sidebar.js"></script>
+		<!--script type="text/javascript" src="static/js/jquery-sidebar.js"></script-->
 		<script type="text/javascript" src="static/js/circle.js"></script>
 		<script type="text/javascript" src="static/js/map.js"></script>
 		<script type="text/javascript">
-			// Draws placeholder segments while loading from db
-			var circle = $( "#circle-canvas" ).circle();
-			circle.drawLangaugeSegments( [30,25,20,15,10] );
-			$( "#sidebar" ).on( "mouseover", function(e) {
-				$( "#circle-canvas" ).hide();
-			} );
-			$( "#sidebar" ).on( "mouseleave", function(e) {
-				$( "#circle-canvas" ).show();
+			$( document ).ready( function() {
+				// Draws placeholder segments while loading from db
+				var circle = $( "#circle-canvas" ).circle();
+				circle.drawLangaugeSegments( [30,25,20,15,10] );
+
+				$( ".tab" ).on( "click", function(e) {
+					var oldTab = $( ".tab.selected" ),
+							newTab = $( this );
+					var oldPage = $( "#" + oldTab.attr( "id" ).split( "-" )[0] + "-page" ),
+							newPage = $( "#" + newTab.attr( "id" ).split( "-" )[0] + "-page" );
+
+					oldTab.removeClass( "selected" );
+					oldPage.removeClass( "selected" );
+
+					newTab.addClass( "selected" );
+					newPage.addClass( "selected" );
+				} );
+
+				$( "#sidebar" ).on( "mouseover", function(e) {
+					$( "#circle-canvas" ).hide();
+				} );
+				$( "#sidebar" ).on( "mouseleave", function(e) {
+					$( "#circle-canvas" ).show();
+				} );
 			} );
 		</script>
 	</body>
