@@ -1,7 +1,7 @@
 import re
 import os
 from TwitterAPI import TwitterAPI
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
 
 twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
 twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
@@ -34,34 +34,32 @@ def tweet_process(tweet, stopwords, mongo_db):
 	tweet_text_dirty = tweet['text']
 	tweet_words = tweet_text_words(tweet_text_dirty)
 	tweet_text = ' '.join(tweet_words)
-	tweet_words_filtered = filter(lambda w: len(w) > 3 and w not in stopwords, map(lambda w: w.lower(), tweet_words))
+	tweet_words_filtered = filter(lambda w: len(w) > 3 and w not in stopwords and w.isalnum(), map(lambda w: w.lower(), tweet_words))
 	tweet_geolocation = tweet_get_geolocation(tweet)
 	tweet_language = tweet['lang']
-	print(tweet_language);print(tweet_text_dirty);print;
 
-	mongo_db_languages = mongo_db['languages']
+	mongo_db_languages = mongo_db['languages0']
 	if tweet_language != 'und' and tweet_geolocation is not None:
-		mongo_db_languages.update({
-			'language': tweet_language
-		}, {
-			'$push': {
-				'tweet': tweet_geolocation
-			}
-		}, True)
+		mongo_db_languages.insert({
+			'language': tweet_language,
+			'location': [
+				tweet_geolocation['longitude'],
+				tweet_geolocation['latitude']
+			]
+		})
 
-	mongo_db_words = mongo_db['words']
-	if tweet_language == 'en' and tweet_geolocation is not None:
+	mongo_db_words = mongo_db['words0']
+	if tweet_language != 'und' and tweet_geolocation is not None:
 		for word in tweet_words_filtered:
-			word_clean = filter(lambda c: c.isalnum(), word)
-			mongo_db_words.update({
-				'word': word_clean
-			}, {
-				'$push': {
-					'tweet': tweet_geolocation
-				}
-			}, True)
+			mongo_db_words.insert({
+				'word': word,
+				'location': [
+					tweet_geolocation['longitude'],
+					tweet_geolocation['latitude']
+				]
+			})
 
-	#print(tweet_text, tweet_geolocation, tweet_language, tweet_words_filtered)
+	print(tweet_text, tweet_geolocation, tweet_language, tweet_words_filtered)
 
 def read_stopwords():
 	stopwords_file = open('stopwords')
@@ -84,8 +82,7 @@ if __name__ == '__main__':
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
 	countries = read_countries()
-	# Old UK coords: -14.02,49.67,2.09,61.06
-	twitter_stream = twitter_api.request('statuses/filter', {'locations': '5.955,45.818,10.507,47.810'})# get tweets stream for Switzerland
+	twitter_stream = twitter_api.request('statuses/filter', {'locations': countries['Spain'] })
 	for tweet in twitter_stream:
 		if 'text' in tweet:
 			tweet_process(tweet, stopwords, mongo_db)
