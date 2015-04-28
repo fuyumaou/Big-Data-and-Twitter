@@ -23,10 +23,7 @@ wordsCollection = mongo_db['words']
 # get_languages
 # Function that retrieves the list of languages to be queried on, built using data from DB
 def get_languages():
-    language_list=[]
-    for lang_tweets in languageCollection.find({},{'_id':False,'language':True}): # .find() is quite expensive
-        language_list.append(lang_tweets['language'])
-    return language_list
+    return languageCollection.distinct('language')
 
 #----------------------------------------------------------------------------
 # More general helper functions:
@@ -62,7 +59,7 @@ def helper_languages_get(x0, y0, x1, y1):
     languages = get_languages()
     results = []
     for lang in languages:
-        number_tweets_in_lang = languageCollection.count()
+        number_tweets_in_lang = languageCollection.find({'loc':{'$within':{'$box': [[x0,y0],[x1,y1]]}},'language':lang}).count()
         if number_tweets_in_lang>0:
             results.append([lang,number_tweets_in_lang])
     return results
