@@ -14,7 +14,7 @@ mongo_db = mongo_client.get_default_database()
 
 # Retrieval of languages and tweet collections
 languageCollection = mongo_db['languages0']
-wordsCollection = mongo_db['words']
+wordsCollection = mongo_db['words0']
 
 #----------------------------------------------------------------------------
 # Language Visualisation specific helper functions:
@@ -99,23 +99,24 @@ def helper_language_tweet_locations(x0,y0,x1,y1):
 # Input: sw_longitude, sw_latitude, ne_longitude, ne_latitude, words_count
 # Output: The List of the words_count pairs of most frequent words and their count for the given area
 def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
-	words = []
-	words_count = 0
-	for word_tweets in wordsCollection.find():
-		words_count += 1
-		word = word_tweets['word']
-		locations = word_tweets['tweet']
-		word_tweets = len(filter(lambda l: is_in_rectangle_area(l, sw_longitude, sw_latitude, ne_longitude, ne_latitude), locations))
+	words = {}
+	for tweet in wordsCollection.find({'location':{'$within':{'$box': [[sw_longitude, sw_latitude],[ne_longitude, ne_latitude]]}}}):
+		word = tweet['word']
+		location = tweet['location']
+		if word not in words:
+			words[word] = []
+		words[word].append(location)
 
-		if word_tweets > 0:
-			words.append({
-				'word': word,
-				'count': word_tweets
-			})
+	word_list = []
+	for word in words:
+		word_list.append({
+			'word': word,
+			'count': len(words[word])
+		})
 
-	words.sort(key = lambda w: w['count'], reverse = True)
+	word_list.sort(key = lambda w: w['count'], reverse = True)
 
-	return words[:word_count]
+	return word_list[:word_count]
 
 
 #----------------------------------------------------------------------------

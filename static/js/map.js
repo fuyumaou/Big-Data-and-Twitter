@@ -108,7 +108,6 @@ var initializeMap = function() {
 
 			$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
 			function( response ) {
-				console.log(response);
 				var data = response.data;
 
 				// Sort by tweet count
@@ -148,7 +147,6 @@ var initializeMap = function() {
 						otherShare -= parseFloat( languageTweetShare );
 					}
 				}
-				console.log(languageShareHtml);
 				$( "#languages" ).html( languageShareHtml );
 				if ( otherShare > 1 && otherShare < 100 ) {
 					circlePortions.push( otherShare );
