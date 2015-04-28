@@ -108,6 +108,7 @@ var initializeMap = function() {
 
 			$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
 			function( response ) {
+				console.log(response);
 				var data = response.data;
 
 				// Sort by tweet count
@@ -123,19 +124,16 @@ var initializeMap = function() {
 				// # of segs not including "other"
 				var circlePortions = [];
 				var otherShare = 100;
-				var minShareSize = 1;
+				var minShareSize = 1.0;
 				var shareLargeEnough = true;
 
 				var languageShareHtml = "";
-				i = 0;
-				while ( shareLargeEnough ) {
+				for (var i = 0; i < data.length; i++) {
 					var languageId = data[i][0];
 					var languageTweetCount = data[i][1];
 					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
-					if ( languageTweetShare < minShareSize ) {
-						shareLargeEnough = false;
-					} else {
+					if (languageTweetShare >= minShareSize) {
 						var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
 									languageId + "></img>: " + languageTweetShare + "%</div>\n";
 
@@ -149,9 +147,8 @@ var initializeMap = function() {
 						circlePortions.push( parseFloat( languageTweetShare ) );
 						otherShare -= parseFloat( languageTweetShare );
 					}
-
-					i++;
 				}
+				console.log(languageShareHtml);
 				$( "#languages" ).html( languageShareHtml );
 				if ( otherShare > 1 ) {
 					circlePortions.push( otherShare );
