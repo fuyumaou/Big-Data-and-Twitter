@@ -65,10 +65,10 @@
 					newPage.addClass( "selected" );
 				} );
 
-				$( "#sidebar" ).on( "mouseover", function(e) {
+				$( "#sidebar, #header" ).on( "mouseover", function(e) {
 					$( "#circle-canvas" ).hide();
 				} );
-				$( "#sidebar" ).on( "mouseleave", function(e) {
+				$( "#sidebar, #header" ).on( "mouseleave", function(e) {
 					$( "#circle-canvas" ).show();
 				} );
 			} );
