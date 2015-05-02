@@ -2,22 +2,25 @@ var input = document.getElementById( "pac-input" );
 
 var initializeMap = function() {
 	//help from http://stackoverflow.com/a/24234818/1779797
-	
-	fx=google.maps.InfoWindow.prototype.setPosition
-	google.maps.InfoWindow.prototype.setPosition=function(){
-		fx.apply(this,arguments);
+
+	fx = google.maps.InfoWindow.prototype.setPosition
+	google.maps.InfoWindow.prototype.setPosition = function() {
+		fx.apply(this, arguments);
 		//this property isn't documented, but as it seems
 		//it's only defined for InfoWindows opened on POI's
-		if (this.logAsInternal) doSomething(this)
+		if (this.logAsInternal) {
+			var infoWindow = this;
+			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
+			var pos = infoWindow.position;
+			console.log(name);
+			console.log(pos.lat() + ", " + pos.lng())
+			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
+				console.log(response);
+
+			})
+		}
 	}
 
-	function doSomething(infoWindow){
-		var name=infoWindow.getContent().firstChild.firstChild.nodeValue
-		console.log(name)
-		var pos=infoWindow.position
-		console.log(pos.lat()+","+pos.lng())
-	}
-	
 	var styles = [
 		{
 			"featureType": "road",
