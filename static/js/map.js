@@ -16,7 +16,7 @@ var initializeMap = function() {
 			console.log(pos.lat() + ", " + pos.lng())
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				console.log(response);
-				$("#places-page").text(JSON.stringify(response));
+				infoWindow.setContent(JSON.stringify(response));
 			})
 		}
 	}
@@ -230,6 +230,12 @@ var initializeMap = function() {
 	autocomplete.bindTo( "bounds", map );
 
 	var infowindow = new google.maps.InfoWindow();
+	var marker = new google.maps.Marker({
+		map: map
+	});
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.open(map, marker);
+	});
 
 	google.maps.event.addListener( autocomplete, "place_changed", function() {
 		infowindow.close();
@@ -244,8 +250,8 @@ var initializeMap = function() {
 		} else {
 			map.setCenter( place.geometry.location );
 		}
-		map.setZoom( 10 );
-	} );
+		map.setZoom(13);
+	});
 
 };
 
