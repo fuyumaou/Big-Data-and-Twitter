@@ -1,6 +1,7 @@
 #!env/bin/python
 from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
 import os
+import requests
 from pymongo import MongoClient, GEOSPHERE
 from TwitterAPI import TwitterAPI
 
@@ -175,18 +176,64 @@ def api_place(place):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
 	images = []
+	sentiments = []
 	(account_id, account_name) = helper_place_account(place)
 
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
-		tweets.append(tweet)
+		if tweet['lang'] == 'en':
+			sentiment = helper_tweet_sentiments(tweet)
+			if sentiment is not None:
+				sentiments.append((tweet['text'], sentiment))
 
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
 		images = images + helper_tweet_images(tweet)
-		tweets.append(tweet)
 
-	return make_response(jsonify({ 'images': images, 'account_id': account_id, 'account_name': account_name }))
+	return make_response(jsonify({
+		'images': list(set(images)),
+		'account_id': account_id,
+		'account_name': account_name,
+		'sentiments': sentiments
+	}))
+
+def helper_tweet_sentiments(tweet):
+	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
+	parameters = {
+		"apikey" : '939a194dc9ac063a2c2a89358276a7e4e626b4e7',
+		"text"   : tweet['text'],
+		"outputMode" : "json",
+		"showSourceText" : 1
+	}
+
+	try:
+		results = requests.get(url = alchemy_url, params = parameters)
+		response = results.json()
+	except Exception as e:
+		print "Error while calling TextGetTargetedSentiment on Tweet (ID %s)" % tweet['id']
+		print "Error:", e
+		return None
+
+	try:
+		if 'OK' != response['status'] or 'docSentiment' not in response:
+			print "Problem finding 'docSentiment' in HTTP response from AlchemyAPI"
+			print response
+			print "HTTP Status:", results.status_code, results.reason
+			print "--"
+			return None
+
+		tweet['sentiment'] = response['docSentiment']['type']
+		score = 0.0
+		if tweet['sentiment'] in ('positive', 'negative'):
+			score = float(response['docSentiment']['score'])
+		return score
+	except Exception as e:
+		print "D'oh! There was an error enriching Tweet (ID %s)" % tweet['id']
+		print "Error:", e
+		print "Request:", results.url
+		print "Response:", response
+
+	return None
 
 #-----------------------------------------------------------------------------
 
