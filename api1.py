@@ -75,6 +75,15 @@ def helper_language_tweet_locations(x0,y0,x1,y1):
 		})
 	return results
 
+def helper_tweet_images(tweet):
+	images = []
+	if 'entities' in tweet and 'media' in tweet['entities']:
+		media = tweet['entities']['media']
+		for item in media:
+			if 'type' in item and item['type'] == 'photo' and 'media_url_https' in item:
+				images.append(item['media_url_https'])
+	return images
+
 # helper_words_get
 # Input: sw_longitude, sw_latitude, ne_longitude, ne_latitude, words_count
 # Output: The List of the words_count pairs of most frequent words and their count for the given area
@@ -145,9 +154,11 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 def api_place(place):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
+	images = []
 	for tweet in tweets_request:
+		images = images + helper_tweet_images(tweet)
 		tweets.append(tweet)
-	return make_response(jsonify({ 'tweets': tweets }))
+	return make_response(jsonify({ 'images': images }))
 
 #-----------------------------------------------------------------------------
 
