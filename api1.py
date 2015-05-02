@@ -107,6 +107,26 @@ def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_
 	return word_list[:word_count]
 
 
+def helper_place_account(place):
+	account_id = None
+	account_name = None
+	r = twitter_api.request('users/search', {'q': place})
+	for account in r:
+		if 'verified' in account and 'id_str' in account and account['verified'] == True:
+			account_id = account['id_str']
+			if 'name' in account:
+				account_name = account['name']
+			break
+	return (account_id, account_name)
+
+def helper_place_account_tweets(place_account):
+	account_tweets = []
+	if place_account is not None:
+		r = twitter_api.request('statuses/user_timeline', {'user_id': place_account})
+		for tweet in r:
+			account_tweets.append(tweet)
+	return account_tweets
+
 #----------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------
@@ -155,10 +175,18 @@ def api_place(place):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
 	images = []
+	(account_id, account_name) = helper_place_account(place)
+
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
 		tweets.append(tweet)
-	return make_response(jsonify({ 'images': images }))
+
+	account_tweets = helper_place_account_tweets(account_id)
+	for tweet in account_tweets:
+		images = images + helper_tweet_images(tweet)
+		tweets.append(tweet)
+
+	return make_response(jsonify({ 'images': images, 'account_id': account_id, 'account_name': account_name }))
 
 #-----------------------------------------------------------------------------
 
