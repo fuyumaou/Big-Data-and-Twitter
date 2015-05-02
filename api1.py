@@ -34,6 +34,64 @@ def get_language_list():
 	return languageCollection.distinct('language')
 
 #----------------------------------------------------------------------------
+def tweet_get_geolocation(tweet):
+	if 'coordinates' in tweet:
+		geo = tweet['coordinates']
+		if geo is not None and 'type' in geo and geo['type'] == 'Point' and 'coordinates' in geo:
+			coordinates = geo['coordinates']
+			return (coordinates[1], coordinates[0])
+		return None
+	else:
+		return None
+
+def helper_distance_km(lat1, long1, lat2, long2):
+    degrees_to_radians = math.pi / 180.0
+    phi1 = (90.0 - lat1) * degrees_to_radians
+    phi2 = (90.0 - lat2) * degrees_to_radians
+    theta1 = long1*degrees_to_radians
+    theta2 = long2*degrees_to_radians
+    cos = math.sin(phi1) * math.sin(phi2) * math.cos(theta1 - theta2) + math.cos(phi1) * math.cos(phi2)
+    arc = math.acos(cos)
+    return arc * 6373
+
+def helper_tweet_sentiments(tweet):
+	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
+	parameters = {
+		"apikey" : '939a194dc9ac063a2c2a89358276a7e4e626b4e7',
+		"text"   : tweet['text'],
+		"outputMode" : "json",
+		"showSourceText" : 1
+	}
+
+	try:
+		results = requests.get(url = alchemy_url, params = parameters)
+		response = results.json()
+	except Exception as e:
+		print "Error while calling TextGetTargetedSentiment on Tweet (ID %s)" % tweet['id']
+		print "Error:", e
+		return None
+
+	try:
+		if 'OK' != response['status'] or 'docSentiment' not in response:
+			print "Problem finding 'docSentiment' in HTTP response from AlchemyAPI"
+			print response
+			print "HTTP Status:", results.status_code, results.reason
+			print "--"
+			return None
+
+		tweet['sentiment'] = response['docSentiment']['type']
+		score = 0.0
+		if tweet['sentiment'] in ('positive', 'negative'):
+			score = float(response['docSentiment']['score'])
+		return score
+	except Exception as e:
+		print "D'oh! There was an error enriching Tweet (ID %s)" % tweet['id']
+		print "Error:", e
+		print "Request:", results.url
+		print "Response:", response
+
+	return None
+
 # Helper functions for GET Requests:
 
 # helper_language_tweets_count
@@ -171,8 +229,15 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 	results = helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count);
 	return make_response(jsonify({'words': results}), 200)
 
-@app.route('/place/<string:place>', methods = ['GET'])
-def api_place(place):
+@app.route('/place/<string:place>/<string:latitude>/<string:longitude>', methods = ['GET'])
+def api_place(place, latitude, longitude):
+	try:
+		longitude = float(longitude)
+		latitude = float(latitude)
+	except:
+		abort(400)
+
+	max_distance_from_place_km = 100
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
 	images = []
@@ -181,8 +246,17 @@ def api_place(place):
 
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
+		tweet_location = tweet_get_geolocation(tweet)
 		if tweet['lang'] == 'en':
-			sentiment = helper_tweet_sentiments(tweet)
+			sentiment = None
+
+			if tweet_location is None:
+				sentiment = helper_tweet_sentiments(tweet)
+			else:
+				(tweet_latitude, tweet_longitude) = tweet_location
+				if helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude) <= max_distance_from_place_km:
+					sentiment = helper_tweet_sentiments(tweet)
+
 			if sentiment is not None:
 				sentiments.append((tweet['text'], sentiment))
 
@@ -196,44 +270,6 @@ def api_place(place):
 		'account_name': account_name,
 		'sentiments': sentiments
 	}))
-
-def helper_tweet_sentiments(tweet):
-	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
-	parameters = {
-		"apikey" : '939a194dc9ac063a2c2a89358276a7e4e626b4e7',
-		"text"   : tweet['text'],
-		"outputMode" : "json",
-		"showSourceText" : 1
-	}
-
-	try:
-		results = requests.get(url = alchemy_url, params = parameters)
-		response = results.json()
-	except Exception as e:
-		print "Error while calling TextGetTargetedSentiment on Tweet (ID %s)" % tweet['id']
-		print "Error:", e
-		return None
-
-	try:
-		if 'OK' != response['status'] or 'docSentiment' not in response:
-			print "Problem finding 'docSentiment' in HTTP response from AlchemyAPI"
-			print response
-			print "HTTP Status:", results.status_code, results.reason
-			print "--"
-			return None
-
-		tweet['sentiment'] = response['docSentiment']['type']
-		score = 0.0
-		if tweet['sentiment'] in ('positive', 'negative'):
-			score = float(response['docSentiment']['score'])
-		return score
-	except Exception as e:
-		print "D'oh! There was an error enriching Tweet (ID %s)" % tweet['id']
-		print "Error:", e
-		print "Request:", results.url
-		print "Response:", response
-
-	return None
 
 #-----------------------------------------------------------------------------
 
