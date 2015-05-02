@@ -1,6 +1,7 @@
 #!env/bin/python
 from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
 import os
+import math
 import requests
 from pymongo import MongoClient, GEOSPHERE
 from TwitterAPI import TwitterAPI
@@ -34,7 +35,7 @@ def get_language_list():
 	return languageCollection.distinct('language')
 
 #----------------------------------------------------------------------------
-def tweet_get_geolocation(tweet):
+def helper_tweet_geolocation(tweet):
 	if 'coordinates' in tweet:
 		geo = tweet['coordinates']
 		if geo is not None and 'type' in geo and geo['type'] == 'Point' and 'coordinates' in geo:
@@ -52,7 +53,7 @@ def helper_distance_km(lat1, long1, lat2, long2):
     theta2 = long2*degrees_to_radians
     cos = math.sin(phi1) * math.sin(phi2) * math.cos(theta1 - theta2) + math.cos(phi1) * math.cos(phi2)
     arc = math.acos(cos)
-    return arc * 6373
+    return arc * 6373.0
 
 def helper_tweet_sentiments(tweet):
 	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
@@ -246,19 +247,20 @@ def api_place(place, latitude, longitude):
 
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
-		tweet_location = tweet_get_geolocation(tweet)
-		if tweet['lang'] == 'en':
+
+		tweet_location = helper_tweet_geolocation(tweet)
+
+		tweet_distance = 0.0
+		if tweet_location is not None:
+			(tweet_latitude, tweet_longitude) = tweet_location
+			tweet_distance = helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude)
+
+		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt']:
 			sentiment = None
-
-			if tweet_location is None:
+			if tweet_distance <= max_distance_from_place_km:
 				sentiment = helper_tweet_sentiments(tweet)
-			else:
-				(tweet_latitude, tweet_longitude) = tweet_location
-				if helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude) <= max_distance_from_place_km:
-					sentiment = helper_tweet_sentiments(tweet)
-
 			if sentiment is not None:
-				sentiments.append((tweet['text'], sentiment))
+				sentiments.append((tweet['text'], tweet_location, tweet_distance, sentiment))
 
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
