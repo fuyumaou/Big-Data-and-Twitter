@@ -116,6 +116,22 @@ def helper_language_tweets_count(x0, y0, x1, y1):
 
 	return results
 
+def helper_language_tweet_circle_count(x,y,r):
+    languages = get_language_list()
+    results = []
+    for lang in languages:
+        number_tweets_in_lang = languageCollection.find({
+            'location': {
+                '$within': {
+                    '$center': [[x,y],r]
+                }
+            },
+            'language': lang
+        }).count()
+        if number_tweets_in_lang > 0:
+            results.append([lang, number_tweets_in_lang])
+    return results
+
 # helper_language_tweet_locations
 # !! --- the naming of this uses geoJSON convention so that it can be used very easily used by google maps(Toby)
 # Input: x0, y0, x1, y1 --- 4 coordinates
@@ -190,6 +206,17 @@ def helper_place_account_tweets(place_account):
 #----------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------
+# GET request for the languages in the circular area x0, y0, r
+@app.route('/languages/<string:sx>/<string:sy>/<string:sr>', methods=['GET'])
+def api_languages_circle_get(sx,sy,sr):
+    try:
+        x = float(sx)
+        y = float(sy)
+        r = float(sr)
+    except:
+        abort(400)
+    results = helper_language_tweet_circle_count(x,y,r)
+    return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
 
 # GET request for the languages in the rectangular area x0, y0, x1, y1
 @app.route('/languages/<string:sx0>/<string:sy0>/<string:sx1>/<string:sy1>', methods = ['GET'])
@@ -271,7 +298,7 @@ def api_place(place, latitude, longitude):
 		'account_id': account_id,
 		'account_name': account_name,
 		'sentiments': sentiments
-	}))
+	}), 200)
 
 #-----------------------------------------------------------------------------
 
