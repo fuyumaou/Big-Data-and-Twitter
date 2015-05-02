@@ -2,9 +2,17 @@
 from flask import Flask, make_response, jsonify, abort, request, url_for, render_template, session, redirect
 import os
 from pymongo import MongoClient, GEOSPHERE
+from TwitterAPI import TwitterAPI
 
 app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
+
+# Twitter API connection
+twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
+twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
+twitter_consumer_key = 'bWMmJpHklikmU3fbKemgmr40H'
+twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
+twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
 
 # Connecting to Mongo Client
 mongo_url = os.getenv('MONGOLAB_URI')
@@ -132,6 +140,10 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 		abort(400)
 	results = helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count);
 	return make_response(jsonify({'words': results}), 200)
+
+@app.route('/place/<string:place>', methods = ['GET'])
+def api_place(place):
+	abort(404)
 
 #-----------------------------------------------------------------------------
 
