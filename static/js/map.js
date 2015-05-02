@@ -16,7 +16,7 @@ var initializeMap = function() {
 			console.log(pos.lat() + ", " + pos.lng())
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				console.log(response);
-				infoWindow.setContent(JSON.stringify(response));
+				$("#places-page").text(JSON.stringify(response));
 			})
 		}
 	}
