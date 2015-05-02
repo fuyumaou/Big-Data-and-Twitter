@@ -250,17 +250,17 @@ def api_place(place, latitude, longitude):
 
 		tweet_location = helper_tweet_geolocation(tweet)
 
-		tweet_distance = 0.0
+		tweet_distance = None
 		if tweet_location is not None:
 			(tweet_latitude, tweet_longitude) = tweet_location
 			tweet_distance = helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude)
 
 		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt']:
 			sentiment = None
-			if tweet_distance <= max_distance_from_place_km:
+			if tweet_distance is None or tweet_distance <= max_distance_from_place_km:
 				sentiment = helper_tweet_sentiments(tweet)
 			if sentiment is not None:
-				sentiments.append((tweet['text'], tweet_location, tweet_distance, sentiment))
+				sentiments.append((tweet['text'], tweet_distance, sentiment))
 
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
