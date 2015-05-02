@@ -143,7 +143,11 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 
 @app.route('/place/<string:place>', methods = ['GET'])
 def api_place(place):
-	abort(404)
+	tweets_request = twitter_api.request('search/tweets', { 'q': place })
+	tweets = []
+	for tweet in tweets_request:
+		tweets.append(tweet)
+	return make_response(jsonify({ 'tweets': tweets }))
 
 #-----------------------------------------------------------------------------
 
