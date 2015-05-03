@@ -16,10 +16,18 @@ var initializeMap = function() {
 			console.log(pos.lat() + ", " + pos.lng())
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				console.log(response);
-				$("#places-page").text(JSON.stringify(response));
+				if(response.account_id){
+					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="'+response.account_id+'">Tweets by +'+response.account_name+'+</a>')
+					$("#places-account").show()
+					twttr.widgets.load()
+				}
+				else $("#places-account").hide();
+				$("#places-content").text('Sentiment: '+response.sentiment);
+				//TODO: make this red to green rather than a number
 			})
 		}
 	}
+	$("#places-account").hide()
 
 	var styles = [
 		{
@@ -250,7 +258,7 @@ var initializeMap = function() {
 		} else {
 			map.setCenter( place.geometry.location );
 		}
-		map.setZoom(13);
+		map.setZoom(15);
 	});
 
 };

@@ -122,8 +122,8 @@ def helper_language_tweet_circle_count(x,y,r):
     for lang in languages:
         number_tweets_in_lang = languageCollection.find({
             'location': {
-                '$within': {
-                    '$center': [[x,y],r]
+                '$geoWithin': {
+                    '$centerSphere': [[x,y],r]
                 }
             },
             'language': lang
@@ -269,9 +269,11 @@ def api_place(place, latitude, longitude):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
 	images = []
-	sentiments = []
+	#sentiments = []
+	total_sentiment=0
+	n_sentiments=-1#avoiding division by 0
 	(account_id, account_name) = helper_place_account(place)
-
+	
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
 
@@ -287,8 +289,10 @@ def api_place(place, latitude, longitude):
 			if tweet_distance is None or tweet_distance <= max_distance_from_place_km:
 				sentiment = helper_tweet_sentiments(tweet)
 			if sentiment is not None:
-				sentiments.append((tweet['text'], tweet_distance, sentiment))
-
+				#sentiments.append((tweet['text'], tweet_distance, sentiment))
+				total_sentiment+=sentiment
+				n_sentiments+=2 if n_sentiments==-1 else 1
+	
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
 		images = images + helper_tweet_images(tweet)
@@ -297,7 +301,8 @@ def api_place(place, latitude, longitude):
 		'images': list(set(images)),
 		'account_id': account_id,
 		'account_name': account_name,
-		'sentiments': sentiments
+		#'sentiments': sentiments,
+		'sentiment' : total_sentiment/n_sentiments
 	}), 200)
 
 #-----------------------------------------------------------------------------
