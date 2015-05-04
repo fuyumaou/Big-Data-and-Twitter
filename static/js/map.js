@@ -28,7 +28,7 @@ var initializeMap = function() {
 					$("#places-account").html('');
 				}
 
-				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
+				$("#places-content").html('Average Tweet Sentiment: ' + Math.round(response.average_sentiment * 100) /100 +' / 10');
 				sentimentBar.setValue( response.average_sentiment );
 				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
