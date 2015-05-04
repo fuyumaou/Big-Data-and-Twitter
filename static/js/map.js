@@ -218,19 +218,25 @@ var initializeMap = function() {
 				}
 			} );
 
-			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function( response ) {
-				var words = response.words;
-				for (var i = 0; i < words.length; i++) {
-					var word = words[i].word;
-					var count = words[i].count;
-					words[i] = {
-						text: word,
-						weight: count
+			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/15", function( response ) {
+				if (response.words.length > 0) {
+					var words = response.words;
+					console.log(words);
+					for (var i = 0; i < words.length; i++) {
+						var word = words[i].word;
+						var count = words[i].count;
+						words[i] = {
+							text: word,
+							weight: count
+						}
 					}
+					$("#wordcloud").html("");
+					$("#wordcloud").jQCloud(words, {
+					  width: 200,
+					  height: 200,
+					  shape: "rectangular"
+					});
 				}
-				console.log(words);
-				$("#wordcloud").html("");
-				$("#wordcloud").jQCloud(words);
 			} );
 
 			lastBounds = bounds;

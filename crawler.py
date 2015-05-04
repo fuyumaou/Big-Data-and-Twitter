@@ -82,7 +82,7 @@ if __name__ == '__main__':
 	stopwords = read_stopwords()
 	twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
 	countries = read_countries()
-	twitter_stream = twitter_api.request('statuses/filter', {'locations': countries['Spain'] })
+	twitter_stream = twitter_api.request('statuses/filter', {'locations': countries['France'] })
 	for tweet in twitter_stream:
 		if 'text' in tweet:
 			tweet_process(tweet, stopwords, mongo_db)
