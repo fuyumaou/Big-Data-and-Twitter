@@ -10,11 +10,14 @@ app = Flask(__name__)
 app.config['DEBUG'] = True#Turn debug mode on, the stuff at the bottom doesn't seem to do this. perhaps __name__ isn't '__main__' when using foreman?
 
 # Twitter API connection
-twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
-twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
-twitter_consumer_key = 'bWMmJpHklikmU3fbKemgmr40H'
-twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
+twitter_access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+twitter_access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+twitter_consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
+twitter_consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 twitter_api = TwitterAPI(twitter_consumer_key, twitter_consumer_secret, twitter_access_token, twitter_access_token_secret)
+
+# AlchemyAPI key
+alchemy_api_key = os.getenv('ALCHEMYAPI_KEY')
 
 # Connecting to Mongo Client
 mongo_url = os.getenv('MONGOLAB_URI')
@@ -71,7 +74,7 @@ def helper_distance_km(lat1, long1, lat2, long2):
 def helper_tweet_sentiments(tweet):
 	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
 	parameters = {
-		"apikey" : '939a194dc9ac063a2c2a89358276a7e4e626b4e7',
+		"apikey" : alchemy_api_key,
 		"text"   : tweet['text'],
 		"outputMode" : "json",
 		"showSourceText" : 1
