@@ -1,2 +1,2 @@
-web: gunicorn --log-file=- api1:app
+web: gunicorn --log-file=- api:app
 worker: python crawler.py

@@ -9,6 +9,9 @@ var initializeMap = function() {
 		//this property isn't documented, but as it seems
 		//it's only defined for InfoWindows opened on POI's
 		if (this.logAsInternal) {
+			$("#places-account").text('');
+			$("#places-content").html('<center><img width="150" src="/static/img/loading.gif" alt="Loading" /></center>');
+
 			var infoWindow = this;
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
 			var pos = infoWindow.position;
@@ -22,8 +25,9 @@ var initializeMap = function() {
 					twttr.widgets.load()
 				}
 				else $("#places-account").hide();
-				$("#places-content").text('Sentiment: '+response.sentiment);
+				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
 				//TODO: make this red to green rather than a number
+				//TODO: display thumbsup vs thumbsdown (imgs already on server)
 			})
 		}
 	}
@@ -80,7 +84,7 @@ var initializeMap = function() {
 			lat: 46.78003,
 			lng: 7.96637
 		}, zoom: 8,
-		minZoom: 4,
+		minZoom: 5,
 		disableDefaultUI: true,
 		styles: styles
 	};

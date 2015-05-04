@@ -21,20 +21,15 @@ mongo_url = os.getenv('MONGOLAB_URI')
 mongo_client = MongoClient(mongo_url)
 mongo_db = mongo_client.get_default_database()
 
-# Retrieval of languages and tweet collections
+# MongoDB collections
 languageCollection = mongo_db['languages0']
 wordsCollection = mongo_db['words0']
 
-#----------------------------------------------------------------------------
-# Language Visualisation specific helper functions:
-
-# can we avoid calling this too often? surely language_list won't change much?
-# get_languages
-# Function that retrieves the list of languages to be queried on, built using data from DB
+# Retrieves the list of all languages to be queried on
 def get_language_list():
 	return languageCollection.distinct('language')
 
-#----------------------------------------------------------------------------
+# Get the geolocation of a tweet or return None on failure
 def helper_tweet_geolocation(tweet):
 	if 'coordinates' in tweet:
 		geo = tweet['coordinates']
@@ -45,6 +40,23 @@ def helper_tweet_geolocation(tweet):
 	else:
 		return None
 
+# Get list of images of a tweet
+def helper_tweet_images(tweet):
+	images = []
+	if 'entities' in tweet and 'media' in tweet['entities']:
+		media = tweet['entities']['media']
+		for item in media:
+			if 'type' in item and item['type'] == 'photo' and 'media_url_https' in item:
+				images.append(item['media_url_https'])
+	return images
+
+# Get the Twitter account id of a tweet or return None on failure
+def helper_tweet_account_id(tweet):
+	if 'user' in tweet and 'id' in tweet['user']:
+		return tweet['user']['id']
+	return None
+
+# Get the distance in km between two places on Earth
 def helper_distance_km(lat1, long1, lat2, long2):
     degrees_to_radians = math.pi / 180.0
     phi1 = (90.0 - lat1) * degrees_to_radians
@@ -55,6 +67,7 @@ def helper_distance_km(lat1, long1, lat2, long2):
     arc = math.acos(cos)
     return arc * 6373.0
 
+# Get the sentiment score of a tweet between -1.0 and 1.0 or return None on failure
 def helper_tweet_sentiments(tweet):
 	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
 	parameters = {
@@ -68,37 +81,22 @@ def helper_tweet_sentiments(tweet):
 		results = requests.get(url = alchemy_url, params = parameters)
 		response = results.json()
 	except Exception as e:
-		print "Error while calling TextGetTargetedSentiment on Tweet (ID %s)" % tweet['id']
-		print "Error:", e
 		return None
 
 	try:
 		if 'OK' != response['status'] or 'docSentiment' not in response:
-			print "Problem finding 'docSentiment' in HTTP response from AlchemyAPI"
-			print response
-			print "HTTP Status:", results.status_code, results.reason
-			print "--"
 			return None
-
 		tweet['sentiment'] = response['docSentiment']['type']
 		score = 0.0
 		if tweet['sentiment'] in ('positive', 'negative'):
 			score = float(response['docSentiment']['score'])
 		return score
 	except Exception as e:
-		print "D'oh! There was an error enriching Tweet (ID %s)" % tweet['id']
-		print "Error:", e
-		print "Request:", results.url
-		print "Response:", response
+		return None
 
 	return None
 
-# Helper functions for GET Requests:
-
-# helper_language_tweets_count
-# Input: x0, y0, x1, y1 --- 4 coordinates (west,south,east,north)
-# Output: A List of Records of type {language, number} where number is the number
-#	   of tweets in the respective language in the defined rectangular area
+# Retrieve a tweet count for each language in a rectangular area
 def helper_language_tweets_count(x0, y0, x1, y1):
 	languages = get_language_list()
 	results = []
@@ -116,14 +114,15 @@ def helper_language_tweets_count(x0, y0, x1, y1):
 
 	return results
 
-def helper_language_tweet_circle_count(x,y,r):
+# Retrieve a tweet count for each language in a circular area
+def helper_language_tweet_circle_count(x, y, r):
     languages = get_language_list()
     results = []
     for lang in languages:
         number_tweets_in_lang = languageCollection.find({
             'location': {
                 '$geoWithin': {
-                    '$centerSphere': [[x,y],r]
+                    '$centerSphere': [[x, y], r]
                 }
             },
             'language': lang
@@ -132,14 +131,17 @@ def helper_language_tweet_circle_count(x,y,r):
             results.append([lang, number_tweets_in_lang])
     return results
 
-# helper_language_tweet_locations
-# !! --- the naming of this uses geoJSON convention so that it can be used very easily used by google maps(Toby)
-# Input: x0, y0, x1, y1 --- 4 coordinates
-# Output: A List of Records of type {type, properties:{language}, geometry: {type,coordinates}}
-#		   that correspond to tweets, their languages and their locations that can be found in the rectangular area x0,y0,x1,y1
-def helper_language_tweet_locations(x0,y0,x1,y1):
+# Retrieve tweets' coordinates and language in a rectangular area
+def helper_language_tweet_locations(x0, y0, x1, y1):
 	results = []
-	for tweet in languageCollection.find({'location':{'$within':{'$box': [[x0,y0],[x1,y1]]}}}):
+	tweets = languageCollection.find({
+		'location': {
+			'$within': {
+				'$box': [[x0, y0],[x1, y1]]
+			}
+		}
+	})
+	for tweet in tweets:
 		results.append({
 			'type': 'Feature',
 			'properties': {
@@ -151,18 +153,7 @@ def helper_language_tweet_locations(x0,y0,x1,y1):
 		})
 	return results
 
-def helper_tweet_images(tweet):
-	images = []
-	if 'entities' in tweet and 'media' in tweet['entities']:
-		media = tweet['entities']['media']
-		for item in media:
-			if 'type' in item and item['type'] == 'photo' and 'media_url_https' in item:
-				images.append(item['media_url_https'])
-	return images
-
-# helper_words_get
-# Input: sw_longitude, sw_latitude, ne_longitude, ne_latitude, words_count
-# Output: The List of the words_count pairs of most frequent words and their count for the given area
+# Retrieve the most frequent words and the number of tweets in which they appear in a rectangular area
 def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
 	words = {}
 	for tweet in wordsCollection.find({'location':{'$within':{'$box': [[sw_longitude, sw_latitude],[ne_longitude, ne_latitude]]}}}):
@@ -182,7 +173,7 @@ def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_
 
 	return word_list[:word_count]
 
-
+# Retrieve the official account of a place from Twitter
 def helper_place_account(place):
 	account_id = None
 	account_name = None
@@ -195,32 +186,34 @@ def helper_place_account(place):
 			break
 	return (account_id, account_name)
 
-def helper_place_account_tweets(place_account):
+# Retrieve a list of tweets of an account from Twitter
+def helper_place_account_tweets(acount):
 	account_tweets = []
-	if place_account is not None:
-		r = twitter_api.request('statuses/user_timeline', {'user_id': place_account})
+	if acount is not None:
+		r = twitter_api.request('statuses/user_timeline', {'user_id': acount})
 		for tweet in r:
 			account_tweets.append(tweet)
 	return account_tweets
 
-#----------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------
-# GET request for the languages in the circular area x0, y0, r
-@app.route('/languages/<string:sx>/<string:sy>/<string:sr>', methods=['GET'])
-def api_languages_circle_get(sx,sy,sr):
+# GET request for the languages in the circular area
+@app.route('/languages/<string:x>/<string:y>/<string:r>', methods=['GET'])
+def api_languages_circle_get(x, y, r):
     try:
-        x = float(sx)
-        y = float(sy)
-        r = float(sr)
+        x = float(x)
+        y = float(y)
+        r = float(r)
     except:
         abort(400)
-    results = helper_language_tweet_circle_count(x,y,r)
-    return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
 
-# GET request for the languages in the rectangular area x0, y0, x1, y1
+    results = helper_language_tweet_circle_count(x, y, r)
+    return make_response(jsonify({
+		'type': 'LanguagesCounted',
+		'data': results
+	}), 200)
+
+# GET request for the languages in the rectangular area
 @app.route('/languages/<string:sx0>/<string:sy0>/<string:sx1>/<string:sy1>', methods = ['GET'])
-def api_languages_get(sx0,sy0,sx1,sy1):
+def api_languages_get(sx0, sy0, sx1, sy1):
 	try:
 		x0 = float(sx0)
 		y0 = float(sy0)
@@ -228,12 +221,16 @@ def api_languages_get(sx0,sy0,sx1,sy1):
 		y1 = float(sy1)
 	except:
 		abort(400)
-	results = helper_language_tweets_count(x0,y0,x1,y1)
-	return make_response(jsonify({'type':'LanguagesCounted','data':results}), 200)
 
-# GET request for the locations of all tweets and their language in the rectangular area x0, y0, x1, y1
+	results = helper_language_tweets_count(x0, y0, x1, y1)
+	return make_response(jsonify({
+		'type': 'LanguagesCounted',
+		'data':results
+	}), 200)
+
+# GET request for the locations of all tweets and their language in the rectangular area
 @app.route('/languageslocations/<string:sx0>/<string:sy0>/<string:sx1>/<string:sy1>', methods = ['GET'])
-def api_languageslocations_get(sx0,sy0,sx1,sy1):
+def api_languageslocations_get(sx0, sy0, sx1, sy1):
 	try:
 		x0 = float(sx0)
 		y0 = float(sy0)
@@ -241,10 +238,14 @@ def api_languageslocations_get(sx0,sy0,sx1,sy1):
 		y1 = float(sy1)
 	except:
 		abort(400)
-	results = helper_language_tweet_locations(x0,y0,x1,y1)
-	return make_response(jsonify({'type':'FeatureCollection','features':results}),200)
 
-# GET request for the first word_count meaningful words and their language in the rectangular area defined by sw_longitude, sw_latitude, ne_longitude, ne_latitude
+	results = helper_language_tweet_locations(x0, y0, x1, y1)
+	return make_response(jsonify({
+		'type': 'FeatureCollection',
+		'features': results
+	}), 200)
+
+# GET request for the first word_count meaningful words and their language in the rectangular area
 @app.route('/words/<string:sw_longitude>/<string:sw_latitude>/<string:ne_longitude>/<string:ne_latitude>/<int:word_count>', methods = ['GET'])
 def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
 	try:
@@ -254,9 +255,11 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 		ne_latitude = float(ne_latitude)
 	except:
 		abort(400)
+
 	results = helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count);
 	return make_response(jsonify({'words': results}), 200)
 
+# GET request for details about a place
 @app.route('/place/<string:place>/<string:latitude>/<string:longitude>', methods = ['GET'])
 def api_place(place, latitude, longitude):
 	try:
@@ -269,49 +272,57 @@ def api_place(place, latitude, longitude):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place })
 	tweets = []
 	images = []
-	#sentiments = []
-	total_sentiment=0
-	n_sentiments=-1#avoiding division by 0
+	sentiments = []
+	positive_sentiments = 0
+	negative_sentiments = 0
 	(account_id, account_name) = helper_place_account(place)
-	
+
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
-
 		tweet_location = helper_tweet_geolocation(tweet)
+		tweet_account_id = helper_tweet_account_id(tweet)
 
 		tweet_distance = None
 		if tweet_location is not None:
 			(tweet_latitude, tweet_longitude) = tweet_location
 			tweet_distance = helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude)
 
-		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt']:
-			sentiment = None
-			if tweet_distance is None or tweet_distance <= max_distance_from_place_km:
-				sentiment = helper_tweet_sentiments(tweet)
-			if sentiment is not None:
-				#sentiments.append((tweet['text'], tweet_distance, sentiment))
-				total_sentiment+=sentiment
-				n_sentiments+=2 if n_sentiments==-1 else 1
-	
+		tweet_sentiment = None
+		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt'] and (tweet_distance is None or tweet_distance <= max_distance_from_place_km) and (tweet_account_id is None or account_id is None or tweet_account_id != account_id):
+			tweet_sentiment = helper_tweet_sentiments(tweet)
+
+		if tweet_sentiment is not None:
+			if tweet_sentiment > 0.0:
+				positive_sentiments += 1
+			elif tweet_sentiment < 0.0:
+				negative_sentiments += 1
+			sentiments.append(tweet_sentiment)
+
+		tweets.append((tweet_location, tweet_account_id, tweet_distance, tweet_sentiment))
+
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
 		images = images + helper_tweet_images(tweet)
+
+	count_sentiments = len(sentiments)
+	average_sentiment = None
+	if count_sentiments > 0:
+		average_sentiment = sum(map(lambda s: (s + 1.0) * 5.0, sentiments)) / count_sentiments
 
 	return make_response(jsonify({
 		'images': list(set(images)),
 		'account_id': account_id,
 		'account_name': account_name,
-		#'sentiments': sentiments,
-		'sentiment' : total_sentiment/n_sentiments
+		'average_sentiment': average_sentiment,
+		'positive_sentiments': positive_sentiments,
+		'negative_sentiments': negative_sentiments,
+		'tweets': tweets
 	}), 200)
 
-#-----------------------------------------------------------------------------
-
+# GET request for the HTML template
 @app.route('/')
 def homepage_get():
 	return render_template("map.html")
-
-#-----------------------------------------------------------------------------
 
 # Handler for 400 (bad request) errors
 @app.errorhandler(400)
@@ -323,7 +334,5 @@ def error_not_found(error):
 def error_not_found(error):
 	return make_response(jsonify({'error': 'Resource not found'}), 404)
 
-#-----------------------------------------------------------------------------
-#Debug mode ON
 if __name__ == '__main__':
 	app.run(debug = True)
