@@ -8,6 +8,7 @@ var initializeMap = function() {
 		fx.apply(this, arguments);
 		//this property isn't documented, but as it seems
 		//it's only defined for InfoWindows opened on POI's
+		var sentimentBar = $( "sentiment-canvas" ).sentimentBar();
 		if (this.logAsInternal) {
 			$("#places-account").text('');
 			$("#places-content").html('<center><img width="150" src="/static/img/loading.gif" alt="Loading" /></center>');
@@ -28,6 +29,7 @@ var initializeMap = function() {
 				}
 
 				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
+				sentimentBar.setValue( response.average_sentiment );
 				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)

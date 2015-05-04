@@ -29,6 +29,7 @@
 		<div id="sidebar" class="content">
 			<div id="places-page" class="sidebar-page">
 				<div id="places-content">Click on a place to find tweets and sentiment about it</div>
+				<div id="places-bar"><canvas id="sentiment-canvas" width="200px" height="20px"></canvas></div>
 				<div id="places-account">
 					<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512">Tweets by @tcb1024</a>
 				</div>
@@ -77,6 +78,35 @@
 				$( "#sidebar, #header" ).on( "mouseleave", function(e) {
 					$( "#circle-canvas" ).show();
 				} );
+
+				$.fn.sentimentBar = function() {
+					var $bar = this;
+					var canvas = document.getElementById( "sentiment-canvas" );
+					var ctx = canvas.getContext( "2d" );
+					var w = canvas.width;
+					var h = canvas.height;
+
+					$bar.setValue = function( value ) {
+						ctx.clearRect( 0, 0, w, h );
+						ctx.beginPath();
+						ctx.rect( 0, 0, value*w/10, h );
+
+						var grd = ctx.createLinearGradient( 0, 0, w, h );
+						grd.addColorStop( 0, "red" );
+						grd.addColorStop( 0.175, "orange" );
+						grd.addColorStop( 0.35, "yellow" );
+						grd.addColorStop( 0.7, "lightgreen" );
+						grd.addColorStop( 1, "green" );
+						ctx.fillStyle = grd;
+						ctx.fill();
+					}
+
+					return $bar;
+				}
+
+				var bar = $( "sentiment-canvas" ).sentimentBar();
+				bar.setValue(10);
+
 			} );
 		</script>
 	</body>
