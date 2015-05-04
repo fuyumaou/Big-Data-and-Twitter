@@ -1,40 +1,8 @@
 var input = document.getElementById( "pac-input" );
 
 var initializeMap = function() {
-	//help from http://stackoverflow.com/a/24234818/1779797
-
-	fx = google.maps.InfoWindow.prototype.setPosition
-	google.maps.InfoWindow.prototype.setPosition = function() {
-		fx.apply(this, arguments);
-		//this property isn't documented, but as it seems
-		//it's only defined for InfoWindows opened on POI's
-		if (this.logAsInternal) {
-			$("#places-account").text('');
-			$("#places-content").html('<center><img width="150" src="/static/img/loading.gif" alt="Loading" /></center>');
-
-			var infoWindow = this;
-			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
-			var pos = infoWindow.position;
-			console.log(name);
-			console.log(pos.lat() + ", " + pos.lng())
-			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
-				console.log(response);
-				if(response.account_id){
-					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="'+response.account_id+'">Tweets by +'+response.account_name+'+</a>')
-					twttr.widgets.load()
-				}
-				else {
-					$("#places-account").html('');
-				}
-
-				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
-				//TODO: make this red to green rather than a number
-				// http://wbotelhos.com/raty
-				//TODO: display thumbsup vs thumbsdown (imgs already on server)
-			})
-		}
-	}
-
+	//set up the map
+	//----------------
 	var styles = [
 		{
 			"featureType": "road",
@@ -91,8 +59,54 @@ var initializeMap = function() {
 		styles: styles
 	};
 
-	var map = new google.maps.Map( document.getElementById( "map-canvas" ), mapOptions );
+	 map = new google.maps.Map( document.getElementById( "map-canvas" ), mapOptions );
 
+	
+	
+	
+	
+	
+	//Stuff used in the places tab
+	//----------------------------
+	
+	//help from http://stackoverflow.com/a/24234818/1779797
+	fx = google.maps.InfoWindow.prototype.setPosition
+	google.maps.InfoWindow.prototype.setPosition = function() {
+		fx.apply(this, arguments);
+		//this property isn't documented, but as it seems
+		//it's only defined for InfoWindows opened on POI's
+		if (this.logAsInternal) {
+			$("#places-account").text('');
+			$("#places-content").html('<center><img width="150" src="/static/img/loading.gif" alt="Loading" /></center>');
+
+			var infoWindow = this;
+			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
+			var pos = infoWindow.position;
+			console.log(name);
+			console.log(pos.lat() + ", " + pos.lng())
+			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
+				console.log(response);
+				if(response.account_id){
+					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="'+response.account_id+'">Tweets by +'+response.account_name+'+</a>')
+					twttr.widgets.load()
+				}
+				else {
+					$("#places-account").html('');
+				}
+
+				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
+				//TODO: make this red to green rather than a number
+				// http://wbotelhos.com/raty
+				//TODO: display thumbsup vs thumbsdown (imgs already on server)
+			})
+		}
+	}
+	
+	
+	
+	//Stuff used for the languages tab
+	//--------------------------------
+	
 	var flags = {
 		"en": "/static/img/flag-en.png",
 		"fr": "/static/img/flag-fr.png",
@@ -100,7 +114,35 @@ var initializeMap = function() {
 		"de": "/static/img/flag-de.png",
 		"it": "/static/img/flag-it.png"
 	};
-
+	map.data.setStyle( function( feature ) {
+		var lang = feature.getProperty( "language" );
+		var icon = "/static/img/dot.png";
+		if ( lang in flags ) { icon = flags[lang]; }
+		return { "icon": icon };
+	} );
+	//get all the tweets
+	 tweets = []
+	$.get('/allTweetLangs',function(response){
+		tweets=response.tweets
+		gj=[]
+		for (tweetn in tweets){
+			tweet=tweets[tweetn]
+			gj.push(
+			{
+				type: 'Feature',
+				properties: {
+					language:tweet[0]
+				}, geometry: {
+					type: 'Point',
+					coordinates: tweet[1]
+				}
+			})
+		}
+		map.data.addGeoJson({
+			type: 'FeatureCollection',
+			features: gj})
+		})
+	
 	// Leaving this here for nostalgia & in case the new way is too slow
 	/* $.get( "/languageslocations/-180/-90/180/90", function( response ) {
 		map.data.addGeoJson( response );
@@ -119,13 +161,68 @@ var initializeMap = function() {
 
 	var lastBounds = false;
 	var updateLocation = function() {
+		
+	    var bounds = map.getBounds();
+		var countByLang={}
+		tweetCount=0
+		// # of segs not including "other"
+		var circlePortions = [];
+		var otherShare = 100;
+		var minShareSize = 1.0;
+		var shareLargeEnough = true;
+		for (tweetn in tweets){
+			var tweet=tweets[tweetn]
+			var lang=tweet[0]
+			var loc=tweet[1]
+			if(bounds.contains(new google.maps.LatLng(loc[1],loc[0]))){
+				if(lang in countByLang) countByLang[lang]+=1;
+				else countByLang[lang]=1;
+				tweetCount+=1
+			}
+			
+		}
+		langs=[]
+		for (lang in countByLang) {langs.push(lang)}
+		langs.sort(function(a,b){return countByLang[b]-countByLang[a]})
+		
+		
+		
+		var languageShareHtml = "";
+		for (langn in langs) {
+			lang=langs[langn]
+			var languageTweetCount = countByLang[lang];
+			var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
 
+			if ( languageTweetShare >= minShareSize ) {
+				var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" +
+							lang + "></img>: " + languageTweetShare + "%</div>\n";
+
+				if ( !( lang in flags ) ) {
+					languageShareDisplay = "<div>" + lang + ": " + languageTweetShare +
+						"%</div>\n";
+				}
+
+				languageShareHtml += languageShareDisplay;
+
+				circlePortions.push( parseFloat( languageTweetShare ) );
+				otherShare -= parseFloat( languageTweetShare );
+			}
+		}
+		$( "#languages" ).html( languageShareHtml );
+		if ( otherShare > 1 && otherShare < 100 ) {
+			circlePortions.push( otherShare );
+			circle.drawLangaugeSegments( circlePortions, true );
+		} else {
+			circle.drawLangaugeSegments( circlePortions, false );
+		}
+		
+		/*
+		
 		// AJAX(map.getBounds().toString(),loadData)
 
 		// ignore changes smaller than 5%
 		change = 0.05;
 		var update = true;
-		var bounds = map.getBounds();
 		if ( lastBounds ) {
 			var width = lastBounds.getSouthWest().lng() - lastBounds.getNorthEast().lng();
 			var height = lastBounds.getSouthWest().lat() - lastBounds.getNorthEast().lat();
@@ -160,15 +257,11 @@ var initializeMap = function() {
 						map.data.remove( feature );
 					}
 				} );
-				map.data.setStyle( function( feature ) {
-					var lang = feature.getProperty( "language" );
-					var icon = "/static/img/dot.png";
-					if ( lang in flags ) { icon = flags[lang]; }
-					return { "icon": icon };
-				} );
-			} ); } )( lastBounds, bounds, sw, ne );
+			} ); } )( lastBounds, bounds, sw, ne );*?
 
-			$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
+
+
+			/*$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
 			function( response ) {
 				var data = response.data;
 
@@ -242,7 +335,7 @@ var initializeMap = function() {
 			lastBounds = bounds;
 		}
 
-	};
+	};*/}
 
 	//updateLocation()
 	google.maps.event.addListener( map, "idle", updateLocation );

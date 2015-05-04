@@ -155,6 +155,14 @@ def helper_language_tweet_locations(x0, y0, x1, y1):
 			}
 		})
 	return results
+	
+# Retrieve tweets' coordinates and language in a rectangular area
+def helper_all_lang_locs():
+	results = []
+	tweets = languageCollection.find({})
+	for tweet in tweets:
+		results.append([tweet['language'],tweet['location']])
+	return results
 
 # Retrieve the most frequent words and the number of tweets in which they appear in a rectangular area
 def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
@@ -282,7 +290,7 @@ def api_place(place, latitude, longitude):
 		abort(400)
 
 	max_distance_from_place_km = 100
-	tweets_request = twitter_api.request('search/tweets', { 'q': place })
+	tweets_request = twitter_api.request('search/tweets', { 'q': place, 'count': 10 })#kept low to avoid overusing alchemyAPI
 	tweets = []
 	images = []
 	sentiments = []
@@ -304,14 +312,14 @@ def api_place(place, latitude, longitude):
 		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt'] and (tweet_distance is None or tweet_distance <= max_distance_from_place_km) and (tweet_account_id is None or account_id is None or tweet_account_id != account_id):
 			tweet_sentiment = helper_tweet_sentiments(tweet)
 
-		if tweet_sentiment is not None:
+		if tweet_sentiment is not None and tweet_sentiment!=0.0:
 			if tweet_sentiment > 0.0:
 				positive_sentiments += 1
 			elif tweet_sentiment < 0.0:
 				negative_sentiments += 1
 			sentiments.append(tweet_sentiment)
 
-		tweets.append((tweet_location, tweet_account_id, tweet_distance, tweet_sentiment))
+		tweets.append((tweet_location, tweet_account_id, tweet_distance, tweet_sentiment,tweet['text']))
 
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
@@ -320,7 +328,7 @@ def api_place(place, latitude, longitude):
 	count_sentiments = len(sentiments)
 	average_sentiment = None
 	if count_sentiments > 0:
-		average_sentiment = sum(map(lambda s: (s + 1.0) * 5.0, sentiments)) / count_sentiments
+		average_sentiment = (sum(sentiments) / count_sentiments)*5+5
 
 	return make_response(jsonify({
 		'images': list(set(images)),
@@ -331,6 +339,14 @@ def api_place(place, latitude, longitude):
 		'negative_sentiments': negative_sentiments,
 		'tweets': tweets
 	}), 200)
+
+
+# GET request returning all positions and languages of tweets in the database
+@app.route('/allTweetLangs')
+def all_langs_get():
+	return make_response(jsonify({'tweets':helper_all_lang_locs()}))
+
+
 
 # GET request for the HTML template
 @app.route('/')
