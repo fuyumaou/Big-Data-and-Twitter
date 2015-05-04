@@ -137,6 +137,10 @@ html, body {
 	pointer-events:none;
 }
 
+#sentiment-canvas {
+	border-radius: 5px;
+}
+
 img {
 	vertical-align: middle;
 }

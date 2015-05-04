@@ -70,12 +70,12 @@ def helper_distance_km(lat1, long1, lat2, long2):
     arc = math.acos(cos)
     return arc * 6373.0
 
-# Get the sentiment score of a tweet between -1.0 and 1.0 or return None on failure
-def helper_tweet_sentiments(tweet):
+# Get the sentiment score of the concatenated message of multiple tweets between -1.0 and 1.0 or return None on failure
+def helper_tweets_sentiments(tweets_messages):
 	alchemy_url = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment"
 	parameters = {
 		"apikey" : alchemy_api_key,
-		"text"   : tweet['text'],
+		"text"   : tweets_messages,
 		"outputMode" : "json",
 		"showSourceText" : 1
 	}
@@ -84,17 +84,19 @@ def helper_tweet_sentiments(tweet):
 		results = requests.get(url = alchemy_url, params = parameters)
 		response = results.json()
 	except Exception as e:
+		raise e #FOR DEBUGGING
 		return None
 
 	try:
 		if 'OK' != response['status'] or 'docSentiment' not in response:
 			return None
-		tweet['sentiment'] = response['docSentiment']['type']
+		sentiment = response['docSentiment']['type']
 		score = 0.0
-		if tweet['sentiment'] in ('positive', 'negative'):
+		if sentiment in ('positive', 'negative'):
 			score = float(response['docSentiment']['score'])
 		return score
 	except Exception as e:
+		raise e #FOR DEBUGGING
 		return None
 
 	return None
@@ -293,11 +295,10 @@ def api_place(place, latitude, longitude):
 	tweets_request = twitter_api.request('search/tweets', { 'q': place, 'count': 10 })#kept low to avoid overusing alchemyAPI
 	tweets = []
 	images = []
-	sentiments = []
-	positive_sentiments = 0
-	negative_sentiments = 0
 	(account_id, account_name) = helper_place_account(place)
 
+	tweets_messages = []
+	
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
 		tweet_location = helper_tweet_geolocation(tweet)
@@ -308,35 +309,35 @@ def api_place(place, latitude, longitude):
 			(tweet_latitude, tweet_longitude) = tweet_location
 			tweet_distance = helper_distance_km(tweet_latitude, tweet_longitude, latitude, longitude)
 
-		tweet_sentiment = None
 		if tweet['lang'] in ['en', 'fr', 'it', 'de', 'ru', 'es', 'pt'] and (tweet_distance is None or tweet_distance <= max_distance_from_place_km) and (tweet_account_id is None or account_id is None or tweet_account_id != account_id):
-			tweet_sentiment = helper_tweet_sentiments(tweet)
+			tweets_messages.append((tweet['text'] + ' . ' , tweet_account_id))
 
-		if tweet_sentiment is not None and tweet_sentiment!=0.0:
-			if tweet_sentiment > 0.0:
-				positive_sentiments += 1
-			elif tweet_sentiment < 0.0:
-				negative_sentiments += 1
-			sentiments.append(tweet_sentiment)
-
-		tweets.append((tweet_location, tweet_account_id, tweet_distance, tweet_sentiment,tweet['text']))
+		tweets.append((tweet_location, tweet_account_id, tweet_distance))
 
 	account_tweets = helper_place_account_tweets(account_id)
 	for tweet in account_tweets:
 		images = images + helper_tweet_images(tweet)
 
-	count_sentiments = len(sentiments)
+	tweets_sentiments = None			
+	tweets_sentiments_messages = ''
+	if (len(tweets_messages)):
+		for tweet_message in tweets_messages:
+			#app.logger.debug(tweet_message)
+			if tweet_message[1] != account_id:
+				tweets_sentiments_messages += tweet_message[0]
+		app.logger.debug(tweets_sentiments_messages)
+		tweets_sentiments = helper_tweets_sentiments(tweets_sentiments_messages)
+		app.logger.debug(tweets_sentiments)
+		
 	average_sentiment = None
-	if count_sentiments > 0:
-		average_sentiment = (sum(sentiments) / count_sentiments)*5+5
+	if tweets_sentiments is not None:
+		average_sentiment = (tweets_sentiments + 1.0) * 5.0
 
 	return make_response(jsonify({
 		'images': list(set(images)),
 		'account_id': account_id,
 		'account_name': account_name,
 		'average_sentiment': average_sentiment,
-		'positive_sentiments': positive_sentiments,
-		'negative_sentiments': negative_sentiments,
 		'tweets': tweets
 	}), 200)
 
