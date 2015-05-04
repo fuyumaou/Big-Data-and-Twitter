@@ -21,17 +21,19 @@ var initializeMap = function() {
 				console.log(response);
 				if(response.account_id){
 					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="'+response.account_id+'">Tweets by +'+response.account_name+'+</a>')
-					$("#places-account").show()
 					twttr.widgets.load()
 				}
-				else $("#places-account").hide();
+				else {
+					$("#places-account").html('');
+				}
+
 				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
 				//TODO: make this red to green rather than a number
+				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)
 			})
 		}
 	}
-	$("#places-account").hide()
 
 	var styles = [
 		{
