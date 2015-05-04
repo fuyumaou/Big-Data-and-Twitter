@@ -218,14 +218,19 @@ var initializeMap = function() {
 				}
 			} );
 
-			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20",
-							function( response ) {
+			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/20", function( response ) {
 				var words = response.words;
-				var wordCloudHtml = "";
-				for ( var i = 0; i < words.length; i++ ) {
-					wordCloudHtml += "<div>" +	words[i].word + ": " + words[i].count + "</div>\n";
+				for (var i = 0; i < words.length; i++) {
+					var word = words[i].word;
+					var count = words[i].count;
+					words[i] = {
+						text: word,
+						weight: count
+					}
 				}
-				$( "#wordcloud" ).html( wordCloudHtml );
+				console.log(words);
+				$("#wordcloud").html("");
+				$("#wordcloud").jQCloud(words);
 			} );
 
 			lastBounds = bounds;
@@ -234,7 +239,7 @@ var initializeMap = function() {
 	};
 
 	//updateLocation()
-	google.maps.event.addListener( map, "bounds_changed", updateLocation );
+	google.maps.event.addListener( map, "idle", updateLocation );
 
 	//temporarily ignore the sheer number of requests that would get sent here
 
