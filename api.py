@@ -262,6 +262,16 @@ def api_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_cou
 	results = helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count);
 	return make_response(jsonify({'words': results}), 200)
 
+@app.route('/debug', methods = ['GET'])
+def api_debug():
+	return make_response(jsonify({
+		'TWITTER_ACCESS_TOKEN': twitter_access_token,
+		'TWITTER_ACCESS_TOKEN_SECRET': twitter_access_token_secret,
+		'TWITTER_CONSUMER_KEY': twitter_consumer_key,
+		'TWITTER_CONSUMER_SECRET': twitter_consumer_secret,
+		'ALCHEMYAPI_KEY': alchemy_api_key
+	}), 200)
+
 # GET request for details about a place
 @app.route('/place/<string:place>/<string:latitude>/<string:longitude>', methods = ['GET'])
 def api_place(place, latitude, longitude):
