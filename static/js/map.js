@@ -197,18 +197,22 @@ var initializeMap = function() {
 			var languageTweetShare = (languageTweetCount * 100 / tweetCount).toFixed(1);
 
 			if (languageTweetShare >= minShareSize) {
-				var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" + lang + "></img>: " + languageTweetShare + "%</div>\n";
+				/*var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" + lang + "></img>: " + languageTweetShare + "%</div>\n";
 				if (!(lang in flags)) {
 					languageShareDisplay = "<div>" + lang + ": " + languageTweetShare + "%</div>\n";
 				}
+				*/
 
+				// (1 + (i % 5)) is hackish. we probably want more colours or something anyway...
+				var dotImg = "<td><img class=\"dot\" src=/static/img/dot" + (1 + (i % 5)) + ".png></img></td>";
+				var languageShareDisplay = "<tr class=\"lang-stat\"><td class=\"lang-name\">" + lang +"</td>"+ dotImg +"<td class=\"percent-column\">"+ languageTweetShare + "%</td></tr>\n";
 				languageShareHtml += languageShareDisplay;
 
 				circlePortions.push(parseFloat(languageTweetShare));
 				otherShare -= parseFloat(languageTweetShare);
 			}
 		}
-		$("#languages").html(languageShareHtml);
+		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
 		if (otherShare > 1 && otherShare < 100) {
 			circlePortions.push(otherShare);
 			circle.drawLangaugeSegments(circlePortions, true);

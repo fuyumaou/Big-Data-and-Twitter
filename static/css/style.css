@@ -73,11 +73,11 @@ html, body {
 #sidebar {
 	overflow: scroll;
 	width: 230px;
-	padding: 1em;
+	/* padding: 1em; */
 	margin-top: 50px;
 	padding-bottom: 50px;
 	background-color: rgba( 255, 255, 255, 0.95 );
-	opacity: 0.7;
+	opacity: 0.8;
 	/*box-shadow: 2px 0px 10px rgba(0,0,0,0.2);*/
 	z-index: 2;
 	transition: opacity 750ms;
@@ -93,6 +93,34 @@ html, body {
 
 .sidebar-page.selected {
 	display: block;
+}
+
+#languages-page {
+	text-align: center;
+}
+
+#languages table {
+	margin: 0 auto;
+}
+
+h1 {
+	margin: 10px auto;
+}
+
+.lang-stat > td {
+	margin: 3px auto;
+}
+
+.lang-name {
+	text-align: right;
+}
+
+img.dot {
+	padding: 0 6px;
+}
+
+.percent-column {
+	text-align: left;
 }
 
 .controls {
