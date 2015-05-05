@@ -83,7 +83,7 @@ $.fn.circle = function() {
 };
 
 $( document ).on( "mousemove", function( e ) {
-	console.log(document.documentElement.clientWidth);
+	// console.log(document.documentElement.clientWidth);
 	$( "#circle-canvas" ).css( {
 		left: Math.min(document.documentElement.clientWidth - 2 * c, e.pageX - c),
 		top: Math.min(document.documentElement.clientHeight - 2 * c, e.pageY - c)

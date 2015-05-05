@@ -64,14 +64,11 @@ var initializeMap = function() {
 
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-
-
-
 	//Stuff used in the places tab
 	//----------------------------
 
 	//help from http://stackoverflow.com/a/24234818/1779797
-	fx = google.maps.InfoWindow.prototype.setPosition
+	fx = google.maps.InfoWindow.prototype.setPosition;
 	google.maps.InfoWindow.prototype.setPosition = function() {
 		fx.apply(this, arguments);
 		//this property isn't documented, but as it seems
@@ -85,13 +82,13 @@ var initializeMap = function() {
 			var pos = infoWindow.position;
 			var sentimentBar = $("#sentiment-canvas").sentimentBar();
 			sentimentBar.hide();
-			console.log(name);
-			console.log(pos.lat() + ", " + pos.lng())
+			// console.log(name);
+			// console.log(pos.lat() + ", " + pos.lng());
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
-				console.log(response);
+				// console.log(response);
 				if (response.account_id) {
-					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="' + response.account_id + '">Tweets by +' + response.account_name + '+</a>')
-					twttr.widgets.load()
+					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="' + response.account_id + '">Tweets by +' + response.account_name + '+</a>');
+					twttr.widgets.load();
 				} else {
 					$("#places-account").html('');
 				}
@@ -101,11 +98,9 @@ var initializeMap = function() {
 				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)
-			})
+			});
 		}
-	}
-
-
+	};
 
 	//Stuff used for the languages tab
 	//--------------------------------
@@ -128,12 +123,13 @@ var initializeMap = function() {
 		};
 	});
 	//get all the tweets
-	tweets = []
+	tweets = [];
 	$.get('/allTweetLangs', function(response) {
-		tweets = response.tweets
-		gj = []
-		for (tweetn in tweets) {
-			tweet = tweets[tweetn]
+		tweets = response.tweets;
+		gj = [];
+		for (var tweetn in tweets) {
+			if (!tweets.hasOwnProperty(tweetn)) continue;
+			tweet = tweets[tweetn];
 			gj.push({
 				type: 'Feature',
 				properties: {
@@ -143,13 +139,13 @@ var initializeMap = function() {
 					type: 'Point',
 					coordinates: tweet[1]
 				}
-			})
+			});
 		}
 		map.data.addGeoJson({
 			type: 'FeatureCollection',
 			features: gj
-		})
-	})
+		});
+	});
 
 	// Leaving this here for nostalgia & in case the new way is too slow
 	/* $.get( "/languageslocations/-180/-90/180/90", function( response ) {
@@ -170,39 +166,33 @@ var initializeMap = function() {
 	var lastBounds = false;
 	var updateLocation = function() {
 		var bounds = map.getBounds();
-		var countByLang = {}
-		var tweetCount = 0
+		var countByLang = {};
+		var tweetCount = 0;
 		// # of segs not including "other"
 		var circlePortions = [];
 		var otherShare = 100;
 		var minShareSize = 1.0;
 		var shareLargeEnough = true;
 
-		for (tweetn in tweets) {
-			var tweet = tweets[tweetn]
-			var lang = tweet[0]
-			var loc = tweet[1]
+		for (var i = 0; i < tweets.length; i++) {
+			var tweet = tweets[i];
+			var lang = tweet[0];
+			var loc = tweet[1];
 			if (bounds.contains(new google.maps.LatLng(loc[1], loc[0]))) {
-				if (!(lang in countByLang))
-					countByLang[lang] = 0;
+				if (!(lang in countByLang)) countByLang[lang] = 0;
 				countByLang[lang] += 1;
-				tweetCount += 1
+				tweetCount += 1;
 			}
 		}
 
-		langs = []
-		for (lang in countByLang) {
-			langs.push(lang)
-		}
+		var langs = Object.keys( countByLang );
 		langs.sort(function(a, b) {
-			return countByLang[b] - countByLang[a]
-		})
-
-
+			return countByLang[b] - countByLang[a];
+		});
 
 		var languageShareHtml = "";
-		for (langn in langs) {
-			lang = langs[langn]
+		for (var i = 0; i < langs.length; i++) {
+			var lang = langs[i];
 			var languageTweetCount = countByLang[lang];
 			var languageTweetShare = (languageTweetCount * 100 / tweetCount).toFixed(1);
 
@@ -232,14 +222,14 @@ var initializeMap = function() {
 		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
 			if (response.words.length > 0) {
 				var words = response.words;
-				console.log(words);
+				// console.log(words);
 				for (var i = 0; i < words.length; i++) {
 					var word = words[i].word;
 					var count = words[i].count;
 					words[i] = {
 						text: word,
 						weight: count
-					}
+					};
 				}
 				$("#wordcloud").html("");
 				$("#wordcloud").jQCloud(words, {
@@ -366,10 +356,9 @@ var initializeMap = function() {
 			} );
 
 			lastBounds = bounds;
-		}
+		}*/
 
-	};*/
-	}
+	};
 
 	//updateLocation()
 	google.maps.event.addListener(map, "idle", updateLocation);
