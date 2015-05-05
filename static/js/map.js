@@ -29,11 +29,6 @@ var initializeMap = function() {
 			"saturation": 67
 		}]
 	}, {
-		"featureType": "transit",
-		"stylers": [{
-			"visibility": "off"
-		}]
-	}, {
 		"featureType": "water",
 		"stylers": [{
 			"hue": "#0077ff"
@@ -71,11 +66,12 @@ var initializeMap = function() {
 	fx = google.maps.InfoWindow.prototype.setPosition;
 	google.maps.InfoWindow.prototype.setPosition = function() {
 		fx.apply(this, arguments);
-		//this property isn't documented, but as it seems
-		//it's only defined for InfoWindows opened on POI's
+		//this property isn"t documented, but as it seems
+		//it"s only defined for InfoWindows opened on POI"s
 		if (this.logAsInternal) {
-			$("#places-account").text('');
-			$("#places-content").html('<center><img width="150" src="/static/img/loading.gif" alt="Loading" /></center>');
+			$("#places-account").text("");
+			$("#places-title").text("");
+			$("#places-content").html("<center><img width=\"150\" src=\"/static/img/loading.gif\" alt=\"Loading\" /></center>");
 
 			var infoWindow = this;
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
@@ -86,16 +82,16 @@ var initializeMap = function() {
 			// console.log(pos.lat() + ", " + pos.lng());
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				// console.log(response);
+				$("#places-title").text(name);
 				if (response.account_id) {
-					$("#places-account").html('<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512"   data-user-id="' + response.account_id + '">Tweets by +' + response.account_name + '+</a>');
+					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"   data-user-id=\"\" + response.account_id + \"\">Tweets by +" + response.account_name + "+</a>");
 					twttr.widgets.load();
 				} else {
-					$("#places-account").html('');
+					$("#places-account").html("");
 				}
-				$("#places-content").html('Average Tweet Sentiment: ' + Math.round(response.average_sentiment * 100) / 100 + ' / 10');
+				$("#places-content").html("<h2>Average Sentiment</h2>");
 				sentimentBar.setValue(response.average_sentiment);
 				sentimentBar.show();
-				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)
 			});
@@ -124,25 +120,25 @@ var initializeMap = function() {
 	});
 	//get all the tweets
 	tweets = [];
-	$.get('/allTweetLangs', function(response) {
+	$.get("/allTweetLangs", function(response) {
 		tweets = response.tweets;
 		gj = [];
 		for (var tweetn in tweets) {
 			if (!tweets.hasOwnProperty(tweetn)) continue;
 			tweet = tweets[tweetn];
 			gj.push({
-				type: 'Feature',
+				type: "Feature",
 				properties: {
 					language: tweet[0]
 				},
 				geometry: {
-					type: 'Point',
+					type: "Point",
 					coordinates: tweet[1]
 				}
 			});
 		}
 		map.data.addGeoJson({
-			type: 'FeatureCollection',
+			type: "FeatureCollection",
 			features: gj
 		});
 	});
@@ -204,7 +200,7 @@ var initializeMap = function() {
 				*/
 
 				// (1 + (i % 5)) is hackish. we probably want more colours or something anyway...
-				var dotImg = "<td><img class=\"dot\" src=/static/img/dot" + (1 + (i % 5)) + ".png></img></td>";
+				var dotImg = "<td><img class=\"dot\" src=\"/static/img/dot" + (1 + (i % 5)) + ".png\"></img></td>";
 				var languageShareDisplay = "<tr class=\"lang-stat\"><td class=\"lang-name\">" + lang +"</td>"+ dotImg +"<td class=\"percent-column\">"+ languageTweetShare + "%</td></tr>\n";
 				languageShareHtml += languageShareDisplay;
 
@@ -268,7 +264,7 @@ var initializeMap = function() {
 			$.get( "/languageslocations/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
 			function( response ) {
 
-				// Only add features that weren't in lastBounds (ie new ones)
+				// Only add features that weren"t in lastBounds (ie new ones)
 				var filteredFeatures = response.features.filter( function( feature ) {
 					var coords = feature.geometry.coordinates;
 					var featureLatLng = new google.maps.LatLng( coords[1], coords[0] );
@@ -277,7 +273,7 @@ var initializeMap = function() {
 				var filteredResponse = { "type": "FeatureCollection", "features": filteredFeatures };
 				map.data.addGeoJson( filteredResponse );
 
-				// Remove all feautures which aren't on the screen
+				// Remove all feautures which aren"t on the screen
 				map.data.forEach( function( feature ) {
 					var featureLatLng = feature.getGeometry().get();
 					if ( !bounds.contains( featureLatLng ) ) {
@@ -378,7 +374,7 @@ var initializeMap = function() {
 	var marker = new google.maps.Marker({
 		map: map
 	});
-	google.maps.event.addListener(marker, 'click', function() {
+	google.maps.event.addListener(marker, "click", function() {
 		infowindow.open(map, marker);
 	});
 

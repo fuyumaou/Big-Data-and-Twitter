@@ -73,7 +73,7 @@ html, body {
 #sidebar {
 	overflow: scroll;
 	width: 230px;
-	/* padding: 1em; */
+	padding: 1em;
 	margin-top: 50px;
 	padding-bottom: 50px;
 	background-color: rgba( 255, 255, 255, 0.95 );
@@ -89,14 +89,26 @@ html, body {
 
 .sidebar-page {
 	display: none;
+	text-align: center;
 }
 
 .sidebar-page.selected {
 	display: block;
 }
 
-#languages-page {
-	text-align: center;
+#places-title {
+	font-size: 18pt;
+	margin: 15px 0 25px 0;
+}
+
+#places-page h2 {
+	font-weight: 400;
+	font-size: 14pt;
+	margin: 5px 0;
+}
+
+#languages {
+	margin: 10px 0px;
 }
 
 #languages table {
@@ -104,7 +116,7 @@ html, body {
 }
 
 h1 {
-	margin: 10px auto;
+	margin: 0;
 }
 
 .lang-stat > td {

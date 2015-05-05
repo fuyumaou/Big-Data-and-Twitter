@@ -28,6 +28,7 @@
 
 		<div id="sidebar" class="content">
 			<div id="places-page" class="sidebar-page">
+				<h1 id="places-title"></h1>
 				<div id="places-content">Click on a place to find tweets and sentiment about it</div>
 				<div id="places-bar"><canvas id="sentiment-canvas" width="180px" height="20px"></canvas></div>
 				<div id="places-account">
@@ -85,6 +86,9 @@
 					var ctx = canvas.getContext( "2d" );
 					var w = canvas.width;
 					var h = canvas.height;
+					ctx.font = "12pt \"Oxygen\", sans-serif";
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
 
 					var grd = ctx.createLinearGradient( 0, 0, w, h );
 					grd.addColorStop( 0, "red" );
@@ -102,8 +106,10 @@
 
 						ctx.beginPath();
 						ctx.rect(w * value / 10.0, 0, w, h);
-						ctx.fillStyle = "black";
+						ctx.fillStyle = "white";
 						ctx.fill();
+						ctx.fillStyle = "black";
+						ctx.fillText(Math.round(value * 100) / 100 + " / 10", w/2, h/2);
 					}
 
 					return $bar;
