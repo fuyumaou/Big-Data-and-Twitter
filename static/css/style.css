@@ -139,6 +139,7 @@ html, body {
 
 #sentiment-canvas {
 	border-radius: 5px;
+	border: 1px solid black;
 }
 
 img {

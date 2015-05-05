@@ -234,7 +234,7 @@ var initializeMap = function() {
 					}
 					$("#wordcloud").html("");
 					$("#wordcloud").jQCloud(words, {
-					  width: 200,
+					  width: 180,
 					  height: 200,
 					  shape: "rectangular"
 					});
