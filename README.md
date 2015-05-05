@@ -1,5 +1,8 @@
 ## Group Design Practical - Group 3
 
+### PROJECT REPORT (NEEDS PEOPLE TO WRITE IT):
+https://www.facebook.com/l.php?u=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1-L9ZlJrEFOkF_HBKKI0fdbeh5nAImPiE6juvJwK7Bi8%2Fedit%3Fusp%3Dsharing&h=uAQGm1zea
+
 ### Project spec (currently a draft):
 https://docs.google.com/document/d/1Oz8P191NhYcW2F_nyWKXUU-yRKX1a-aY3NyEmdrjpIo/edit?usp=sharing
 
@@ -12,13 +15,10 @@ https://docs.google.com/document/d/1NrZU_xuXRMMJrVGW8B9ThTsDS3oZhaSPztJd9-lmoLM/
 
 ### Notes 26th April 2015
 Todo:
-* Start implementing place-based visualisation. (sentiment analysis + pulling tweets/photos?)
 * Start writing final report for week 2.
 * Optimise backend.
-* Change database model and API.
 * Change client loading method.
 * Try to make circle work as intended. (hint: fromDivPixelToLatLng)
-* Make word cloud into an actual word cloud.
 
 ### Notes 27th Feb 2015
 Aim: provide a minimal survival guide for tourists using data from Twitter
