@@ -84,6 +84,7 @@ var initializeMap = function() {
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
 			var pos = infoWindow.position;
 			var sentimentBar = $("#sentiment-canvas").sentimentBar();
+			sentimentBar.hide();
 			console.log(name);
 			console.log(pos.lat() + ", " + pos.lng())
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
@@ -94,9 +95,9 @@ var initializeMap = function() {
 				} else {
 					$("#places-account").html('');
 				}
-
 				$("#places-content").html('Average Tweet Sentiment: ' + Math.round(response.average_sentiment * 100) / 100 + ' / 10');
 				sentimentBar.setValue(response.average_sentiment);
+				sentimentBar.show();
 				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)
