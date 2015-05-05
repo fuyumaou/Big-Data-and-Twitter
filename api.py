@@ -157,6 +157,14 @@ def helper_language_tweet_locations(x0, y0, x1, y1):
 			}
 		})
 	return results
+	
+# Retrieve tweets' coordinates and language in a rectangular area
+def helper_all_lang_locs():
+	results = []
+	tweets = languageCollection.find({})
+	for tweet in tweets:
+		results.append([tweet['language'],tweet['location']])
+	return results
 
 # Retrieve the most frequent words and the number of tweets in which they appear in a rectangular area
 def helper_words_get(sw_longitude, sw_latitude, ne_longitude, ne_latitude, word_count):
@@ -284,7 +292,7 @@ def api_place(place, latitude, longitude):
 		abort(400)
 
 	max_distance_from_place_km = 100
-	tweets_request = twitter_api.request('search/tweets', { 'q': place })
+	tweets_request = twitter_api.request('search/tweets', { 'q': place, 'count': 10 })#kept low to avoid overusing alchemyAPI
 	tweets = []
 	images = []
 	(account_id, account_name) = helper_place_account(place)
@@ -332,6 +340,14 @@ def api_place(place, latitude, longitude):
 		'average_sentiment': average_sentiment,
 		'tweets': tweets
 	}), 200)
+
+
+# GET request returning all positions and languages of tweets in the database
+@app.route('/allTweetLangs')
+def all_langs_get():
+	return make_response(jsonify({'tweets':helper_all_lang_locs()}))
+
+
 
 # GET request for the HTML template
 @app.route('/')
