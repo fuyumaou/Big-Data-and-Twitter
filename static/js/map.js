@@ -83,6 +83,7 @@ var initializeMap = function() {
 			var infoWindow = this;
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
 			var pos = infoWindow.position;
+			var sentimentBar = $("#sentiment-canvas").sentimentBar();
 			console.log(name);
 			console.log(pos.lat() + ", " + pos.lng())
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
@@ -94,7 +95,8 @@ var initializeMap = function() {
 					$("#places-account").html('');
 				}
 
-				$("#places-content").html('Average Tweet Sentiment: ' + response.average_sentiment + '<br />+' + response.positive_sentiments + '-' + response.negative_sentiments);
+				$("#places-content").html('Average Tweet Sentiment: ' + Math.round(response.average_sentiment * 100) / 100 + ' / 10');
+				sentimentBar.setValue(response.average_sentiment);
 				//TODO: make this red to green rather than a number
 				// http://wbotelhos.com/raty
 				//TODO: display thumbsup vs thumbsdown (imgs already on server)
@@ -166,26 +168,27 @@ var initializeMap = function() {
 
 	var lastBounds = false;
 	var updateLocation = function() {
-
 		var bounds = map.getBounds();
 		var countByLang = {}
-		tweetCount = 0
-			// # of segs not including "other"
+		var tweetCount = 0
+		// # of segs not including "other"
 		var circlePortions = [];
 		var otherShare = 100;
 		var minShareSize = 1.0;
 		var shareLargeEnough = true;
+
 		for (tweetn in tweets) {
 			var tweet = tweets[tweetn]
 			var lang = tweet[0]
 			var loc = tweet[1]
 			if (bounds.contains(new google.maps.LatLng(loc[1], loc[0]))) {
-				if (lang in countByLang) countByLang[lang] += 1;
-				else countByLang[lang] = 1;
+				if (!(lang in countByLang))
+					countByLang[lang] = 0;
+				countByLang[lang] += 1;
 				tweetCount += 1
 			}
-
 		}
+
 		langs = []
 		for (lang in countByLang) {
 			langs.push(lang)
@@ -203,12 +206,9 @@ var initializeMap = function() {
 			var languageTweetShare = (languageTweetCount * 100 / tweetCount).toFixed(1);
 
 			if (languageTweetShare >= minShareSize) {
-				var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" +
-					lang + "></img>: " + languageTweetShare + "%</div>\n";
-
+				var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" + lang + "></img>: " + languageTweetShare + "%</div>\n";
 				if (!(lang in flags)) {
-					languageShareDisplay = "<div>" + lang + ": " + languageTweetShare +
-						"%</div>\n";
+					languageShareDisplay = "<div>" + lang + ": " + languageTweetShare + "%</div>\n";
 				}
 
 				languageShareHtml += languageShareDisplay;
@@ -225,6 +225,29 @@ var initializeMap = function() {
 			circle.drawLangaugeSegments(circlePortions, false);
 		}
 
+
+		var bounds_sw = bounds.getSouthWest();
+		var bounds_ne = bounds.getNorthEast();
+		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
+			if (response.words.length > 0) {
+				var words = response.words;
+				console.log(words);
+				for (var i = 0; i < words.length; i++) {
+					var word = words[i].word;
+					var count = words[i].count;
+					words[i] = {
+						text: word,
+						weight: count
+					}
+				}
+				$("#wordcloud").html("");
+				$("#wordcloud").jQCloud(words, {
+				  width: 180,
+				  height: 200,
+				  shape: "rectangular"
+				});
+			}
+		} );
 		/*
 
 		// AJAX(map.getBounds().toString(),loadData)
