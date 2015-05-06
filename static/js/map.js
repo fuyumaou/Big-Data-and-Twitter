@@ -269,8 +269,8 @@ var initializeMap = function() {
 				}
 
 				$("#wordcloud").jQCloud(words, {
-					width: 180,
-					height: 200,
+					width: 250,
+					height: 300,
 					shape: "rectangular"
 				});
 			} else {
