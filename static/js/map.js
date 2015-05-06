@@ -83,11 +83,11 @@ var initializeMap = function() {
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				// console.log(response);
 				$("#places-title").text(name);
-				if (response.account_id) {
+				if (response.account_id != null) {
 					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"   data-user-id=\"\" + response.account_id + \"\">Tweets by +" + response.account_name + "+</a>");
 					twttr.widgets.load();
 				} else {
-					$("#places-account").html("");
+					<a class="twitter-timeline" href="https://twitter.com/tcb1024" data-widget-id="594975506904256512">Tweets by @tcb1024</a>
 				}
 				$("#places-content").html("<h2>Average Sentiment</h2>");
 				sentimentBar.setValue(response.average_sentiment);
