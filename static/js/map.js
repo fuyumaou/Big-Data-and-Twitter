@@ -81,14 +81,14 @@ var initializeMap = function() {
 			// console.log(name);
 			// console.log(pos.lat() + ", " + pos.lng());
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
-				console.log(response);
+				// console.log(response);
 				$("#places-title").text(name);
 				if (response.account_id) {
-					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"   data-user-id=\"" + response.account_id + "\">Tweets by +" + response.account_name + "+</a>");
+					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"	 data-user-id=\"" + response.account_id + "\">Tweets by +" + response.account_name + "+</a>");
 					twttr.widgets.load();
 				} else {
 					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\">Tweets by @tcb1024</a>");
-                    twttr.widgets.load();
+										twttr.widgets.load();
 				}
 				$("#places-content").html("<h2>Average Sentiment</h2>");
 				sentimentBar.setValue(response.average_sentiment);
@@ -108,6 +108,39 @@ var initializeMap = function() {
 		"es": "/static/img/flag-es.png",
 		"de": "/static/img/flag-de.png",
 		"it": "/static/img/flag-it.png"
+	};
+	// From twitter:
+	var languageCodes = {
+		"ar": "Arabic",
+		"da": "Danish",
+		"de": "German",
+		"en": "English",
+		"en-gb": "English UK",
+		"es": "Spanish",
+		"fa": "Farsi",
+		"fi": "Finnish",
+		"fil": "Filipino",
+		"fr": "French",
+		"he": "Hebrew",
+		"hi": "Hindi",
+		"hu": "Hungarian",
+		"id": "Indonesian",
+		"in": "Indian", // i guessed this one. indian isnt actually a language so it could be wrong...
+		"it": "Italian",
+		"ja": "Japanese",
+		"ko": "Korean",
+		"msa": "Malay",
+		"nl": "Dutch",
+		"no": "Norwegian",
+		"pl": "Polish",
+		"pt": "Portuguese",
+		"ru": "Russian",
+		"sv": "Swedish",
+		"th": "Thai",
+		"tr": "Turkish",
+		"ur": "Urdu",
+		"zh-cn": "Simplified Chinese",
+		"zh-tw": "Traditional Chinese",
 	};
 	map.data.setStyle(function(feature) {
 		var lang = feature.getProperty("language");
@@ -202,30 +235,30 @@ var initializeMap = function() {
 
 				// (1 + (i % 5)) is hackish. we probably want more colours or something anyway...
 				var dotImg = "<td><img class=\"dot\" src=\"/static/img/dot" + (1 + (i % 5)) + ".png\"></img></td>";
-				var languageShareDisplay = "<tr class=\"lang-stat\"><td class=\"lang-name\">" + lang +"</td>"+ dotImg +"<td class=\"percent-column\">"+ languageTweetShare + "%</td></tr>\n";
-				languageShareHtml += languageShareDisplay;
+				var langName = (lang in languageCodes) ? languageCodes[lang] : lang;
+				languageShareHtml += "<tr class=\"lang-stat\"><td class=\"lang-name\">" + langName +"</td>"+ dotImg +"<td class=\"percent-column\">"+ languageTweetShare + "%</td></tr>\n";
 
 				circlePortions.push(parseFloat(languageTweetShare));
 				otherShare -= parseFloat(languageTweetShare);
 			}
 		}
-		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
 		if (otherShare > 1 && otherShare < 100) {
 			circlePortions.push(otherShare);
+			languageShareHtml += "<tr class=\"lang-stat\"><td class=\"lang-name\">Others</td><td>&#8212</td><td class=\"percent-column\">"+ otherShare.toFixed(1) + "%</td></tr>\n";
 			circle.drawLangaugeSegments(circlePortions, true);
 		} else {
 			circle.drawLangaugeSegments(circlePortions, false);
 		}
-
+		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
 
 		var bounds_sw = bounds.getSouthWest();
 		var bounds_ne = bounds.getNorthEast();
 		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
-            var words = []
-            $("#wordcloud").html("");
+			var words = [];
+			$("#wordcloud").html("");
 			if (response.words.length > 0) {
 				words = response.words;
-				console.log(words);
+				// console.log(words);
 				for (var i = 0; i < words.length; i++) {
 					var word = words[i].word;
 					var count = words[i].count;
@@ -234,15 +267,15 @@ var initializeMap = function() {
 						weight: count
 					};
 				}
-				
+
 				$("#wordcloud").jQCloud(words, {
-				  width: 180,
-				  height: 200,
-				  shape: "rectangular"
+					width: 180,
+					height: 200,
+					shape: "rectangular"
 				});
 			} else {
-                $("#wordcloud").html("No word cloud for this area");
-            }
+				$("#wordcloud").html("No word cloud for this area");
+			}
 		} );
 		/*
 
@@ -353,9 +386,9 @@ var initializeMap = function() {
 					}
 					$("#wordcloud").html("");
 					$("#wordcloud").jQCloud(words, {
-					  width: 180,
-					  height: 200,
-					  shape: "rectangular"
+						width: 180,
+						height: 200,
+						shape: "rectangular"
 					});
 				}
 			} );

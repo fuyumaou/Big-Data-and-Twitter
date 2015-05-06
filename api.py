@@ -298,7 +298,7 @@ def api_place(place, latitude, longitude):
 	(account_id, account_name) = helper_place_account(place)
 
 	tweets_messages = []
-	
+
 	for tweet in tweets_request:
 		images = images + helper_tweet_images(tweet)
 		tweet_location = helper_tweet_geolocation(tweet)
@@ -318,7 +318,7 @@ def api_place(place, latitude, longitude):
 	for tweet in account_tweets:
 		images = images + helper_tweet_images(tweet)
 
-	tweets_sentiments = None			
+	tweets_sentiments = None
 	tweets_sentiments_messages = ''
 	if (len(tweets_messages)):
 		for tweet_message in tweets_messages:
@@ -328,7 +328,7 @@ def api_place(place, latitude, longitude):
 		app.logger.debug(tweets_sentiments_messages)
 		tweets_sentiments = helper_tweets_sentiments(tweets_sentiments_messages)
 		app.logger.debug(tweets_sentiments)
-		
+
 	average_sentiment = None
 	if tweets_sentiments is not None:
 		average_sentiment = (tweets_sentiments + 1.0) * 5.0
