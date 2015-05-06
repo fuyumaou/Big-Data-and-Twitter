@@ -122,6 +122,7 @@ var initializeMap = function() {
 		"en": "English",
 		"en-gb": "English UK",
 		"es": "Spanish",
+		"et": "Estonian",
 		"fa": "Farsi",
 		"fi": "Finnish",
 		"fil": "Filipino",
@@ -135,6 +136,7 @@ var initializeMap = function() {
 		"it": "Italian",
 		"ja": "Japanese",
 		"ko": "Korean",
+		"lt": "Lithuanian",
 		"msa": "Malay",
 		"nl": "Dutch",
 		"no": "Norwegian",
@@ -150,6 +152,7 @@ var initializeMap = function() {
 		"tr": "Turkish",
 		"uk": "Ukranian",
 		"ur": "Urdu",
+		"vi": "Vietnamese",
 		"zh-cn": "Simplified Chinese",
 		"zh-tw": "Traditional Chinese",
 	};
