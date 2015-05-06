@@ -31,56 +31,50 @@ ctx.shadowBlur = SHADOW_BLUR;
 var c = canvas.width / 2,
 		r = ( canvas.width - 60 ) / 2;
 
-// Usage eg: var circle = $( "#circle-canvas" ).circle();
+// Usage eg: var circle = getCircle();
 //           circle.drawLangaugeSegments( [30, 25, 20, 15, 10] );
-$.fn.circle = function() {
+function drawLangaugeSegments( circlePortions, drawOthers ) {
+	var ctx = canvas.getContext( "2d" );
+	ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
-	var $circle = this;
+	ctx.beginPath();
+	ctx.fillStyle = "rgba( 0, 0, 0, " + CIRCLE_OPACITY + " )";
+	ctx.arc( c, c, r, 0, 2 * Math.PI );
+	ctx.fill();
 
-	$circle.drawLangaugeSegments = function( circlePortions, drawOthers ) {
-		var ctx = canvas.getContext( "2d" );
-		ctx.clearRect( 0, 0, canvas.width, canvas.height );
+	ctx.save();
+	ctx.translate( 0, c * 2 );
+	ctx.rotate( 3 * Math.PI / 2 );
+	ctx.lineWidth = LINE_WIDTH;
+	var lastAngle = 0;
+	var numOfSegs = circlePortions.length;
+	var gap = LINE_GAP * 2 * Math.PI / 360;
 
+	if ( circlePortions.length === 0 ) {
+		ctx.strokeStyle = NO_DATA_STYLE;
 		ctx.beginPath();
-		ctx.fillStyle = "rgba( 0, 0, 0, " + CIRCLE_OPACITY + " )";
 		ctx.arc( c, c, r, 0, 2 * Math.PI );
-		ctx.fill();
-
-		ctx.save();
-		ctx.translate( 0, c * 2 );
-		ctx.rotate( 3 * Math.PI / 2 );
-		ctx.lineWidth = LINE_WIDTH;
-		var lastAngle = 0;
-		var numOfSegs = circlePortions.length;
-		var gap = LINE_GAP * 2 * Math.PI / 360;
-
-		if ( circlePortions.length === 0 ) {
-			ctx.strokeStyle = NO_DATA_STYLE;
-			ctx.beginPath();
-			ctx.arc( c, c, r, 0, 2 * Math.PI );
-			ctx.stroke();
-		} else {
-			for ( var i = 0; i < numOfSegs; i++ ) {
-				/*var shade = Math.floor( 255 * ( numOfSegs - i ) / numOfSegs );
-				ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";*/
-				if ( drawOthers && i === numOfSegs - 1 ) {
-					ctx.strokeStyle = OTHERS_LINE_COLOUR;
-				} else {
-					ctx.strokeStyle = segColourPalette[i % segColourPalette.length];
-				}
-				ctx.beginPath();
-				var endAngle = lastAngle + 2 * Math.PI * circlePortions[i] / 100 - gap;
-				ctx.arc( c, c, r, lastAngle, endAngle );
-				ctx.stroke();
-				lastAngle = endAngle + gap;
+		ctx.stroke();
+	} else {
+		for ( var i = 0; i < numOfSegs; i++ ) {
+			/*var shade = Math.floor( 255 * ( numOfSegs - i ) / numOfSegs );
+			ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";*/
+			if ( drawOthers && i === numOfSegs - 1 ) {
+				ctx.strokeStyle = OTHERS_LINE_COLOUR;
+			} else {
+				ctx.strokeStyle = segColourPalette[i % segColourPalette.length];
 			}
+			ctx.beginPath();
+			var endAngle = lastAngle + 2 * Math.PI * circlePortions[i] / 100 - gap;
+			ctx.arc( c, c, r, lastAngle, endAngle );
+			ctx.stroke();
+			lastAngle = endAngle + gap;
 		}
+	}
 
-		ctx.restore();
-	};
-
-	return $circle;
+	ctx.restore();
 };
+
 
 $( document ).on( "mousemove", function( e ) {
 	// console.log(document.documentElement.clientWidth);
@@ -88,4 +82,5 @@ $( document ).on( "mousemove", function( e ) {
 		left: Math.min(document.documentElement.clientWidth - 2 * c, e.pageX - c),
 		top: Math.min(document.documentElement.clientHeight - 2 * c, e.pageY - c)
 	} );
+	updateCircle(e.pageX,e.pageY,r)
 } );

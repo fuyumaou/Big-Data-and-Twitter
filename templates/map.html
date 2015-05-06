@@ -55,8 +55,7 @@
 		<script type="text/javascript">
 			$( document ).ready( function() {
 				// Draws placeholder segments while loading from db
-				var circle = $( "#circle-canvas" ).circle();
-				circle.drawLangaugeSegments( [] );
+				drawLangaugeSegments( [] );
 
 				$( ".tab" ).on( "click", function(e) {
 					var oldTab = $( ".tab.selected" ),

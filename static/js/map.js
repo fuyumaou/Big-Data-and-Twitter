@@ -58,6 +58,10 @@ var initializeMap = function() {
 	};
 
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+	
+    overlay = new google.maps.OverlayView();
+    overlay.draw = function() {};
+    overlay.setMap(map);
 
 	//Stuff used in the places tab
 	//----------------------------
@@ -174,27 +178,18 @@ var initializeMap = function() {
 			type: "FeatureCollection",
 			features: gj
 		});
+		updateLocation();
 	});
 
-	// Leaving this here for nostalgia & in case the new way is too slow
-	/* $.get( "/languageslocations/-180/-90/180/90", function( response ) {
-		map.data.addGeoJson( response );
-
-		map.data.setStyle( function( feature ) {
-			var lang = feature.getProperty( "language" );
-			var icon = "/static/img/dot.png";
-			if ( lang in flags ) { icon = flags[lang]; }
-			return { "icon": icon };
-		} );
-	} ); */
-
-	//map.controls[google.maps.ControlPosition.TOP_LEFT].push( input );
-
-	var circle = $("circle-canvas").circle();
-
-	var lastBounds = false;
-	var updateLocation = function() {
+	 tweetsOnScreen=[]//a list of all tweets on the screen for faster searching
+	
+	
+	updateCircle = function (x,y,r) {
+		p=overlay.getProjection()
 		var bounds = map.getBounds();
+		var topleft = new google.maps.LatLng(bounds.getNorthEast().lat(),bounds.getSouthWest().lng())
+		var wrongby=p.fromLatLngToDivPixel(topleft)
+		
 		var countByLang = {};
 		var tweetCount = 0;
 		// # of segs not including "other"
@@ -203,11 +198,16 @@ var initializeMap = function() {
 		var minShareSize = 1.0;
 		var shareLargeEnough = true;
 
-		for (var i = 0; i < tweets.length; i++) {
-			var tweet = tweets[i];
+		for (var i = 0; i < tweetsOnScreen.length; i++) {
+			var tweet = tweetsOnScreen[i];
 			var lang = tweet[0];
 			var loc = tweet[1];
-			if (bounds.contains(new google.maps.LatLng(loc[1], loc[0]))) {
+			var loc = new google.maps.LatLng(loc[1], loc[0])
+			pos=p.fromLatLngToDivPixel(loc)
+			a=pos.x-x-wrongby.x
+			b=pos.y-y-wrongby.y
+			
+			if (a*a+b*b<r*r) {
 				if (!(lang in countByLang)) countByLang[lang] = 0;
 				countByLang[lang] += 1;
 				tweetCount += 1;
@@ -226,12 +226,6 @@ var initializeMap = function() {
 			var languageTweetShare = (languageTweetCount * 100 / tweetCount).toFixed(1);
 
 			if (languageTweetShare >= minShareSize) {
-				/*var languageShareDisplay = "<div><img src=" + flags[lang] + " alt=" + lang + "></img>: " + languageTweetShare + "%</div>\n";
-				if (!(lang in flags)) {
-					languageShareDisplay = "<div>" + lang + ": " + languageTweetShare + "%</div>\n";
-				}
-				*/
-
 				// (1 + (i % 5)) is hackish. we probably want more colours or something anyway...
 				var dotImg = "<td><img class=\"dot\" src=\"/static/img/dot" + (1 + (i % 5)) + ".png\"></img></td>";
 				var langName = (lang in languageCodes) ? languageCodes[lang] : lang;
@@ -244,12 +238,27 @@ var initializeMap = function() {
 		if (otherShare > 1 && otherShare < 100) {
 			circlePortions.push(otherShare);
 			languageShareHtml += "<tr class=\"lang-stat\"><td class=\"lang-name\">Others</td><td>&#8212</td><td class=\"percent-column\">"+ otherShare.toFixed(1) + "%</td></tr>\n";
-			circle.drawLangaugeSegments(circlePortions, true);
+			drawLangaugeSegments(circlePortions, true);
 		} else {
-			circle.drawLangaugeSegments(circlePortions, false);
+			drawLangaugeSegments(circlePortions, false);
 		}
 		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
-
+	}
+	
+	
+	var updateLocation = function() {
+		var bounds = map.getBounds();
+        tweetsOnScreen=[]
+		for (var i = 0; i < tweets.length; i++) {
+			var tweet = tweets[i];
+			var lang = tweet[0];
+			var loc = tweet[1];
+			if (bounds.contains(new google.maps.LatLng(loc[1], loc[0]))) {
+				tweetsOnScreen.push(tweet)
+			}
+		}
+		
+		//Word cloud
 		var bounds_sw = bounds.getSouthWest();
 		var bounds_ne = bounds.getNorthEast();
 		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
@@ -276,124 +285,6 @@ var initializeMap = function() {
 				$("#wordcloud").html("No word cloud for this area");
 			}
 		} );
-		/*
-
-		// AJAX(map.getBounds().toString(),loadData)
-
-		// ignore changes smaller than 5%
-		change = 0.05;
-		var update = true;
-		if ( lastBounds ) {
-			var width = lastBounds.getSouthWest().lng() - lastBounds.getNorthEast().lng();
-			var height = lastBounds.getSouthWest().lat() - lastBounds.getNorthEast().lat();
-			update = Math.abs( ( lastBounds.getSouthWest().lng() - bounds.getSouthWest().lng() ) / width ) > change ||
-							 Math.abs( ( lastBounds.getNorthEast().lng() - bounds.getNorthEast().lng() ) / width ) > change ||
-							 Math.abs( ( lastBounds.getSouthWest().lat() - bounds.getSouthWest().lat() ) / height ) > change ||
-							 Math.abs( ( lastBounds.getNorthEast().lat() - bounds.getNorthEast().lat() ) / height ) > change
-		}
-
-		if ( update ) {
-			var sw = bounds.getSouthWest();
-			var ne = bounds.getNorthEast();
-
-			// create a closure so that when the server replies we use the right lastBounds, bounds etc.
-			( function( lastBounds, bounds, sw, ne ) {
-			$.get( "/languageslocations/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
-			function( response ) {
-
-				// Only add features that weren"t in lastBounds (ie new ones)
-				var filteredFeatures = response.features.filter( function( feature ) {
-					var coords = feature.geometry.coordinates;
-					var featureLatLng = new google.maps.LatLng( coords[1], coords[0] );
-					return lastBounds ? !lastBounds.contains( featureLatLng ) : true;
-				} );
-				var filteredResponse = { "type": "FeatureCollection", "features": filteredFeatures };
-				map.data.addGeoJson( filteredResponse );
-
-				// Remove all feautures which aren"t on the screen
-				map.data.forEach( function( feature ) {
-					var featureLatLng = feature.getGeometry().get();
-					if ( !bounds.contains( featureLatLng ) ) {
-						map.data.remove( feature );
-					}
-				} );
-			} ); } )( lastBounds, bounds, sw, ne );*?
-
-
-
-			/*$.get( "/languages/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat(),
-			function( response ) {
-				var data = response.data;
-
-				// Sort by tweet count
-				data.sort( function( a, b ) {
-					return b[1] - a[1];
-				} );
-
-				var tweetCount = 0;
-				for ( var i = 0; i < data.length; i++ ) {
-					tweetCount += data[i][1];
-				}
-
-				// # of segs not including "other"
-				var circlePortions = [];
-				var otherShare = 100;
-				var minShareSize = 1.0;
-				var shareLargeEnough = true;
-
-				var languageShareHtml = "";
-				for ( i = 0; i < data.length; i++ ) {
-					var languageId = data[i][0];
-					var languageTweetCount = data[i][1];
-					var languageTweetShare = ( languageTweetCount * 100 / tweetCount ).toFixed( 1 );
-
-					if ( languageTweetShare >= minShareSize ) {
-						var languageShareDisplay = "<div><img src=" + flags[languageId] + " alt=" +
-									languageId + "></img>: " + languageTweetShare + "%</div>\n";
-
-						if ( !( languageId in flags ) ) {
-							languageShareDisplay = "<div>" + languageId + ": " + languageTweetShare +
-								"%</div>\n";
-						}
-
-						languageShareHtml += languageShareDisplay;
-
-						circlePortions.push( parseFloat( languageTweetShare ) );
-						otherShare -= parseFloat( languageTweetShare );
-					}
-				}
-				$( "#languages" ).html( languageShareHtml );
-				if ( otherShare > 1 && otherShare < 100 ) {
-					circlePortions.push( otherShare );
-					circle.drawLangaugeSegments( circlePortions, true );
-				} else {
-					circle.drawLangaugeSegments( circlePortions, false );
-				}
-			} );
-
-			$.get( "/words/" + sw.lng() + "/" + sw.lat() + "/" + ne.lng() + "/" + ne.lat() + "/15", function( response ) {
-				if (response.words.length > 0) {
-					var words = response.words;
-					console.log(words);
-					for (var i = 0; i < words.length; i++) {
-						var word = words[i].word;
-						var count = words[i].count;
-						words[i] = {
-							text: word,
-							weight: count
-						}
-					}
-					$("#wordcloud").html("");
-					$("#wordcloud").jQCloud(words, {
-						width: 180,
-						height: 200,
-						shape: "rectangular"
-					});
-				}
-			} );
-
-			lastBounds = bounds;
-		}*/
 
 	};
 
