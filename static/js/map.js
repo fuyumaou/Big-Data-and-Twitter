@@ -107,11 +107,16 @@ var initializeMap = function() {
 		"fr": "/static/img/flag-fr.png",
 		"es": "/static/img/flag-es.png",
 		"de": "/static/img/flag-de.png",
-		"it": "/static/img/flag-it.png"
+		"it": "/static/img/flag-it.png",
+		"tr": "/static/img/flag-tr.png",
+		"pt": "/static/img/flag-pt.png",
+		"ru": "/static/img/flag-ru.png"
 	};
 	// From twitter:
 	var languageCodes = {
 		"ar": "Arabic",
+		"bg": "Bulgarian",
+		"bs": "Bosnian",
 		"da": "Danish",
 		"de": "German",
 		"en": "English",
@@ -123,6 +128,7 @@ var initializeMap = function() {
 		"fr": "French",
 		"he": "Hebrew",
 		"hi": "Hindi",
+		"hr": "Croatian",
 		"hu": "Hungarian",
 		"id": "Indonesian",
 		"in": "Indian", // i guessed this one. indian isnt actually a language so it could be wrong...
@@ -134,10 +140,15 @@ var initializeMap = function() {
 		"no": "Norwegian",
 		"pl": "Polish",
 		"pt": "Portuguese",
+		"ro": "Romanian",
 		"ru": "Russian",
+		"sl": "Slovene",
+		"sr": "Serbian",
 		"sv": "Swedish",
+		"tl": "Tagalog",
 		"th": "Thai",
 		"tr": "Turkish",
+		"uk": "Ukranian",
 		"ur": "Urdu",
 		"zh-cn": "Simplified Chinese",
 		"zh-tw": "Traditional Chinese",

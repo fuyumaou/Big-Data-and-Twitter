@@ -28,6 +28,7 @@ div.jqcloud { color: #09f; }
 div.jqcloud a { color: inherit; }
 div.jqcloud a:hover { color: #0df; }
 div.jqcloud a:hover { color: #0cf; }
+/*
 div.jqcloud span.w10 { color: #0cf; }
 div.jqcloud span.w9 { color: #0cf; }
 div.jqcloud span.w8 { color: #0cf; }
@@ -38,6 +39,17 @@ div.jqcloud span.w4 { color: #90c5f0; }
 div.jqcloud span.w3 { color: #a0ddff; }
 div.jqcloud span.w2 { color: #99ccee; }
 div.jqcloud span.w1 { color: #aab5f0; }
+*/
+div.jqcloud span.w10 { color: rgb( 61, 232, 50 ); }
+div.jqcloud span.w9 { color: rgb( 0, 178, 255 ); }
+div.jqcloud span.w8 { color: rgb( 0, 221, 245 ); }
+div.jqcloud span.w7 { color: rgb( 0, 221, 245 ); }
+div.jqcloud span.w6 { color: rgb( 255, 72, 190 ); }
+div.jqcloud span.w5 { color: rgb( 61, 232, 50 ); }
+div.jqcloud span.w4 { color: rgb( 0, 178, 255 ); }
+div.jqcloud span.w3 { color: rgb( 0, 221, 245 ); }
+div.jqcloud span.w2 { color: rgb( 0, 221, 245 ); }
+div.jqcloud span.w1 { color: rgb( 255, 72, 190 ); }
 
 /* layout */
 
