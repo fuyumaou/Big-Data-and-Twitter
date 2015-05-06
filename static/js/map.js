@@ -175,6 +175,7 @@ var initializeMap = function() {
 			type: "FeatureCollection",
 			features: gj
 		});
+		updateLocation();
 	});
 
 	// Leaving this here for nostalgia & in case the new way is too slow
@@ -198,7 +199,6 @@ var initializeMap = function() {
 		var bounds = map.getBounds();
 		var countByLang = {};
 		var tweetCount = 0;
-		// # of segs not including "other"
 		var circlePortions = [];
 		var otherShare = 100;
 		var minShareSize = 1.0;
