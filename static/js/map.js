@@ -220,9 +220,11 @@ var initializeMap = function() {
 		var bounds_sw = bounds.getSouthWest();
 		var bounds_ne = bounds.getNorthEast();
 		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
+            var words = []
+            $("#wordcloud").html("");
 			if (response.words.length > 0) {
-				var words = response.words;
-				// console.log(words);
+				words = response.words;
+				console.log(words);
 				for (var i = 0; i < words.length; i++) {
 					var word = words[i].word;
 					var count = words[i].count;
@@ -231,13 +233,15 @@ var initializeMap = function() {
 						weight: count
 					};
 				}
-				$("#wordcloud").html("");
+				
 				$("#wordcloud").jQCloud(words, {
 				  width: 180,
 				  height: 200,
 				  shape: "rectangular"
 				});
-			}
+			} else {
+                $("#wordcloud").html("No word cloud for this area");
+            }
 		} );
 		/*
 

@@ -1,7 +1,7 @@
 ## Group Design Practical - Group 3
 
 ### PROJECT REPORT (NEEDS PEOPLE TO WRITE IT):
-https://www.facebook.com/l.php?u=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1-L9ZlJrEFOkF_HBKKI0fdbeh5nAImPiE6juvJwK7Bi8%2Fedit%3Fusp%3Dsharing&h=uAQGm1zea
+https://docs.google.com/document/d/1-L9ZlJrEFOkF_HBKKI0fdbeh5nAImPiE6juvJwK7Bi8/edit
 
 ### Project spec (currently a draft):
 https://docs.google.com/document/d/1Oz8P191NhYcW2F_nyWKXUU-yRKX1a-aY3NyEmdrjpIo/edit?usp=sharing
