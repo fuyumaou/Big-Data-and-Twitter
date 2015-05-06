@@ -77,6 +77,7 @@ var initializeMap = function() {
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
 			var pos = infoWindow.position;
 			var sentimentBar = $("#sentiment-canvas").sentimentBar();
+			$("#places-bar").show();
 			sentimentBar.hide();
 			// console.log(name);
 			// console.log(pos.lat() + ", " + pos.lng());
@@ -89,7 +90,7 @@ var initializeMap = function() {
 				} else {
 					$("#places-account").html("No official account found");
 				}
-				$("#places-content").html("<h2>Average Sentiment</h2>");
+				$("#places-content").text("Average Sentiment");
 				sentimentBar.setValue(response.average_sentiment);
 				sentimentBar.show();
 				// http://wbotelhos.com/raty
