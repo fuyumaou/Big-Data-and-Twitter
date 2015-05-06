@@ -72,7 +72,7 @@ html, body {
 
 #sidebar {
 	overflow: scroll;
-	width: 230px;
+	width: 300px;
 	padding: 1em;
 	margin-top: 50px;
 	padding-bottom: 50px;
@@ -97,7 +97,7 @@ html, body {
 }
 
 #places-title {
-	font-size: 18pt;
+	font-size: 22pt;
 	margin: 15px 0 25px 0;
 }
 
@@ -121,7 +121,7 @@ h1 {
 
 .lang-stat > td {
 	margin: 3px auto;
-	font-size: 11pt;
+	font-size: 14pt;
 }
 
 .lang-name {

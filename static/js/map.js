@@ -81,6 +81,7 @@ var initializeMap = function() {
 			var name = infoWindow.getContent().firstChild.firstChild.nodeValue;
 			var pos = infoWindow.position;
 			var sentimentBar = $("#sentiment-canvas").sentimentBar();
+			$("#places-bar").show();
 			sentimentBar.hide();
 			// console.log(name);
 			// console.log(pos.lat() + ", " + pos.lng());
@@ -93,7 +94,7 @@ var initializeMap = function() {
 				} else {
 					$("#places-account").html("No official account found");
 				}
-				$("#places-content").html("<h2>Average Sentiment</h2>");
+				$("#places-content").text("Average Sentiment");
 				sentimentBar.setValue(response.average_sentiment);
 				sentimentBar.show();
 				// http://wbotelhos.com/raty
@@ -110,38 +111,52 @@ var initializeMap = function() {
 		"fr": "/static/img/flag-fr.png",
 		"es": "/static/img/flag-es.png",
 		"de": "/static/img/flag-de.png",
-		"it": "/static/img/flag-it.png"
+		"it": "/static/img/flag-it.png",
+		"tr": "/static/img/flag-tr.png",
+		"pt": "/static/img/flag-pt.png",
+		"ru": "/static/img/flag-ru.png"
 	};
 	// From twitter:
 	var languageCodes = {
 		"ar": "Arabic",
+		"bg": "Bulgarian",
+		"bs": "Bosnian",
 		"da": "Danish",
 		"de": "German",
 		"en": "English",
 		"en-gb": "English UK",
 		"es": "Spanish",
+		"et": "Estonian",
 		"fa": "Farsi",
 		"fi": "Finnish",
 		"fil": "Filipino",
 		"fr": "French",
 		"he": "Hebrew",
 		"hi": "Hindi",
+		"hr": "Croatian",
 		"hu": "Hungarian",
 		"id": "Indonesian",
 		"in": "Indian", // i guessed this one. indian isnt actually a language so it could be wrong...
 		"it": "Italian",
 		"ja": "Japanese",
 		"ko": "Korean",
+		"lt": "Lithuanian",
 		"msa": "Malay",
 		"nl": "Dutch",
 		"no": "Norwegian",
 		"pl": "Polish",
 		"pt": "Portuguese",
+		"ro": "Romanian",
 		"ru": "Russian",
+		"sl": "Slovene",
+		"sr": "Serbian",
 		"sv": "Swedish",
+		"tl": "Tagalog",
 		"th": "Thai",
 		"tr": "Turkish",
+		"uk": "Ukranian",
 		"ur": "Urdu",
+		"vi": "Vietnamese",
 		"zh-cn": "Simplified Chinese",
 		"zh-tw": "Traditional Chinese",
 	};
@@ -192,7 +207,6 @@ var initializeMap = function() {
 		
 		var countByLang = {};
 		var tweetCount = 0;
-		// # of segs not including "other"
 		var circlePortions = [];
 		var otherShare = 100;
 		var minShareSize = 1.0;
@@ -277,8 +291,8 @@ var initializeMap = function() {
 				}
 
 				$("#wordcloud").jQCloud(words, {
-					width: 180,
-					height: 200,
+					width: 250,
+					height: 300,
 					shape: "rectangular"
 				});
 			} else {

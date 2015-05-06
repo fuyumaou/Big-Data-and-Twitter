@@ -1,5 +1,5 @@
 var LINE_GAP = 1.5, // Degrees
-		LINE_WIDTH = 6;
+		LINE_WIDTH = 8;
 
 var LINE_OPACITY = 1.0,
 		OTHERS_LINE_COLOUR = "rgba( 255, 255, 255, " + LINE_OPACITY + " )",
