@@ -1,6 +1,9 @@
 ## Group Design Practical - Group 3
 
-### PROJECT REPORT (NEEDS PEOPLE TO WRITE IT):
+### PROJECT Short Report:
+https://docs.google.com/document/d/1XcYPHL3daBo8hvT-WK46V7qpLmzpyzEWWaQRk6J94kY/edit?usp=sharing
+
+### PROJECT Long Report:
 https://docs.google.com/document/d/1-L9ZlJrEFOkF_HBKKI0fdbeh5nAImPiE6juvJwK7Bi8/edit
 
 ### Project spec (currently a draft):
