@@ -146,7 +146,7 @@ var initializeMap = function() {
 		"ja": "Japanese",
 		"ko": "Korean",
 		"lt": "Lithuanian",
-        "lv": "Latvian"
+        "lv": "Latvian",
 		"msa": "Malay",
 		"nl": "Dutch",
 		"no": "Norwegian",
