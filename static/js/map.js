@@ -48,10 +48,10 @@ var initializeMap = function() {
 
 	var mapOptions = {
 		center: {
-			lat: 46.78003,
-			lng: 7.96637
+			lat: 48.5,
+			lng: 10.9
 		},
-		zoom: 8,
+		zoom: 5,
 		minZoom: 5,
 		disableDefaultUI: true,
 		styles: styles

@@ -127,16 +127,22 @@
 					$(".pac-container").addClass("landing");
 				});
 
+				var removeLanding = function() {
+					$("pac-input").show();
+					$("#pac-input").val($("#landing-box").val());
+					$(".pac-container, #menu, #header, #pac-input, #sidebar").removeClass("landing");
+					$("#landing-wrapper").css("display", "none");
+					$("#sidebar").css("left", "0px");
+					$("#languages-tab, #languages-page").addClass("selected");
+					$("#circle-canvas").show();
+				};
+
 				$("#landing-box").keyup(function(e) {
-					if (e.keyCode == 13) {
-						$("pac-input").show();
-						$("#pac-input").val($("#landing-box").val());
-						$(".pac-container, #menu, #header, #pac-input, #sidebar").removeClass("landing");
-						$("#landing-wrapper").css("display", "none");
-						$("#sidebar").css("left", "0px");
-						$("#languages-tab, #languages-page").addClass("selected");
-						$("#circle-canvas").show();
-					}
+					if (e.keyCode == 13) removeLanding();
+				});
+
+				$("#landing-wrapper").on("click", function(e) {
+					if (!$(e.target).is("#landing-box")) removeLanding();
 				});
 
 			} );
