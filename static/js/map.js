@@ -121,10 +121,12 @@ var initializeMap = function() {
 		"ar": "Arabic",
 		"bg": "Bulgarian",
 		"bs": "Bosnian",
+		"cy": "Welsh",
 		"da": "Danish",
 		"de": "German",
 		"en": "English",
 		"en-gb": "English UK",
+		"el": "Greek",
 		"es": "Spanish",
 		"et": "Estonian",
 		"fa": "Farsi",
@@ -134,12 +136,16 @@ var initializeMap = function() {
 		"he": "Hebrew",
 		"hi": "Hindi",
 		"hr": "Croatian",
+		"ht": "Haitian",
 		"hu": "Hungarian",
+		"hy": "Armenian",
 		"id": "Indonesian",
+		"is": "Icelandic",
 		"it": "Italian",
 		"ja": "Japanese",
 		"ko": "Korean",
 		"lt": "Lithuanian",
+		"lv": "Latvian",
 		"msa": "Malay",
 		"nl": "Dutch",
 		"no": "Norwegian",
@@ -147,13 +153,14 @@ var initializeMap = function() {
 		"pt": "Portuguese",
 		"ro": "Romanian",
 		"ru": "Russian",
+		"sk": "Slovak",
 		"sl": "Slovene",
 		"sr": "Serbian",
 		"sv": "Swedish",
 		"tl": "Tagalog",
 		"th": "Thai",
 		"tr": "Turkish",
-		"uk": "Ukranian",
+		"uk": "Ukrainian",
 		"ur": "Urdu",
 		"vi": "Vietnamese",
 		"zh-cn": "Simplified Chinese",
@@ -267,7 +274,7 @@ var initializeMap = function() {
 			var lang = tweet[0];
 			var loc = tweet[1];
 			if (bounds.contains(new google.maps.LatLng(loc[1], loc[0]))) {
-				tweetsOnScreen.push(tweet)
+				tweetsOnScreen.push(tweet);
 			}
 		}
 

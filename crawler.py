@@ -2,6 +2,7 @@ import re
 import os
 from TwitterAPI import TwitterAPI
 from pymongo import MongoClient, GEOSPHERE
+import datetime
 
 twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
 twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
@@ -45,7 +46,8 @@ def tweet_process(tweet, stopwords, mongo_db):
 			'location': [
 				tweet_geolocation['longitude'],
 				tweet_geolocation['latitude']
-			]
+			],
+			"time": datetime.datetime.utcnow()
 		})
 
 	mongo_db_words = mongo_db['words0']
@@ -56,7 +58,8 @@ def tweet_process(tweet, stopwords, mongo_db):
 				'location': [
 					tweet_geolocation['longitude'],
 					tweet_geolocation['latitude']
-				]
+				],
+				"time": datetime.datetime.utcnow()
 			})
 
 	print(tweet_text, tweet_geolocation, tweet_language, tweet_words_filtered)
