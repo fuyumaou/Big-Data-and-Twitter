@@ -177,13 +177,13 @@ var initializeMap = function() {
 		};
 	});
 	//get all the tweets
-	tweets = [];
+	var tweets = [];
 	$.get("/allTweetLangs", function(response) {
 		tweets = response.tweets;
-		gj = [];
+		var gj = [];
 		for (var tweetn in tweets) {
 			if (!tweets.hasOwnProperty(tweetn)) continue;
-			tweet = tweets[tweetn];
+			var tweet = tweets[tweetn];
 			gj.push({
 				type: "Feature",
 				properties: {
@@ -195,10 +195,10 @@ var initializeMap = function() {
 				}
 			});
 		}
-		map.data.addGeoJson({
+		/*map.data.addGeoJson({
 			type: "FeatureCollection",
 			features: gj
-		});
+		});*/
 		updateLocation();
 	});
 
@@ -262,7 +262,11 @@ var initializeMap = function() {
 		} else {
 			drawLangaugeSegments(circlePortions, false);
 		}
-		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
+		if (langs.length === 0) {
+			$("#languages").html("<p>No tweets found within this area</p>");
+		} else {
+			$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
+		}
 	};
 
 
@@ -318,6 +322,22 @@ var initializeMap = function() {
 	var autocomplete = new google.maps.places.Autocomplete(input);
 	autocomplete.bindTo("bounds", map);
 
+	var searchBox = new google.maps.places.SearchBox(document.getElementById("landing-box"));
+
+	google.maps.event.addListener(searchBox, "places_changed", function() {
+		var place = searchBox.getPlaces()[0];
+
+		if (!place.geometry) return;
+
+		if (place.geometry.viewport) {
+			map.fitBounds(place.geometry.viewport);
+		} else {
+			map.setCenter(place.geometry.location);
+			map.setZoom(15);
+		}
+	});
+
+
 	var infowindow = new google.maps.InfoWindow();
 	var marker = new google.maps.Marker({
 		map: map
@@ -334,12 +354,14 @@ var initializeMap = function() {
 		}
 
 		// If the place has a geometry, then present it on a map.
+		if (!place.geometry) return;
+
 		if (place.geometry.viewport) {
 			map.fitBounds(place.geometry.viewport);
 		} else {
 			map.setCenter(place.geometry.location);
+			map.setZoom(15);
 		}
-		map.setZoom(15);
 	});
 
 };
