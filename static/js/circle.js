@@ -33,7 +33,7 @@ var c = canvas.width / 2,
 
 // Usage eg: var circle = getCircle();
 //           circle.drawLangaugeSegments( [30, 25, 20, 15, 10] );
-function drawLangaugeSegments( circlePortions, drawOthers ) {
+var drawLangaugeSegments = function( circlePortions, drawOthers ) {
 	var ctx = canvas.getContext( "2d" );
 	ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
@@ -82,5 +82,5 @@ $( document ).on( "mousemove", function( e ) {
 		left: Math.min(document.documentElement.clientWidth - 2 * c, e.pageX - c),
 		top: Math.min(document.documentElement.clientHeight - 2 * c, e.pageY - c)
 	} );
-	updateCircle(e.pageX,e.pageY,r)
+	updateCircle(e.pageX,e.pageY,r);
 } );

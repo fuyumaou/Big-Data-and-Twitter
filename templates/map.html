@@ -56,6 +56,7 @@
 			$( document ).ready( function() {
 				// Draws placeholder segments while loading from db
 				drawLangaugeSegments( [] );
+				var currentTabId = "languages-tab";
 
 				$( ".tab" ).on( "click", function(e) {
 					var oldTab = $( ".tab.selected" ),
@@ -68,13 +69,18 @@
 
 					newTab.addClass( "selected" );
 					newPage.addClass( "selected" );
+
+					currentTabId = newTab.attr( "id" );
+					//console.log( currentTabId === "languages-tab" );
+					currentTabId === "languages-tab" ? $("#circle-canvas").show() : $("#circle-canvas").hide();
+					//$( "#circle-canvas" ).hide();
 				} );
 
 				$( "#sidebar, #header" ).on( "mouseover", function(e) {
-					$( "#circle-canvas" ).hide();
+					if (currentTabId === "languages-tab") $( "#circle-canvas" ).hide();
 				} );
 				$( "#sidebar, #header" ).on( "mouseleave", function(e) {
-					$( "#circle-canvas" ).show();
+					if (currentTabId === "languages-tab") $( "#circle-canvas" ).show();
 				} );
 
 				$.fn.sentimentBar = function() {

@@ -58,10 +58,10 @@ var initializeMap = function() {
 	};
 
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-	
-    overlay = new google.maps.OverlayView();
-    overlay.draw = function() {};
-    overlay.setMap(map);
+
+		overlay = new google.maps.OverlayView();
+		overlay.draw = function() {};
+		overlay.setMap(map);
 
 	//Stuff used in the places tab
 	//----------------------------
@@ -94,7 +94,7 @@ var initializeMap = function() {
 				} else {
 					$("#places-account").html("No official account found");
 				}
-				$("#places-content").text("Average Sentiment");
+				$("#places-content").text("Twitter Users' Opinion");
 				sentimentBar.setValue(response.average_sentiment);
 				sentimentBar.show();
 				// http://wbotelhos.com/raty
@@ -136,7 +136,6 @@ var initializeMap = function() {
 		"hr": "Croatian",
 		"hu": "Hungarian",
 		"id": "Indonesian",
-		"in": "Indian", // i guessed this one. indian isnt actually a language so it could be wrong...
 		"it": "Italian",
 		"ja": "Japanese",
 		"ko": "Korean",
@@ -196,15 +195,15 @@ var initializeMap = function() {
 		updateLocation();
 	});
 
-	 tweetsOnScreen=[]//a list of all tweets on the screen for faster searching
-	
-	
+	 var tweetsOnScreen = []; //a list of all tweets on the screen for faster searching
+
+
 	updateCircle = function (x,y,r) {
-		p=overlay.getProjection()
+		var p = overlay.getProjection();
 		var bounds = map.getBounds();
-		var topleft = new google.maps.LatLng(bounds.getNorthEast().lat(),bounds.getSouthWest().lng())
-		var wrongby=p.fromLatLngToDivPixel(topleft)
-		
+		var topleft = new google.maps.LatLng(bounds.getNorthEast().lat(),bounds.getSouthWest().lng());
+		var wrongby = p.fromLatLngToDivPixel(topleft);
+
 		var countByLang = {};
 		var tweetCount = 0;
 		var circlePortions = [];
@@ -216,12 +215,12 @@ var initializeMap = function() {
 			var tweet = tweetsOnScreen[i];
 			var lang = tweet[0];
 			var loc = tweet[1];
-			var loc = new google.maps.LatLng(loc[1], loc[0])
-			pos=p.fromLatLngToDivPixel(loc)
-			a=pos.x-x-wrongby.x
-			b=pos.y-y-wrongby.y
-			
-			if (a*a+b*b<r*r) {
+			loc = new google.maps.LatLng(loc[1], loc[0]);
+			pos = p.fromLatLngToDivPixel(loc);
+			a = pos.x - x - wrongby.x;
+			b = pos.y - y - wrongby.y;
+
+			if (a*a + b*b < r*r) {
 				if (!(lang in countByLang)) countByLang[lang] = 0;
 				countByLang[lang] += 1;
 				tweetCount += 1;
@@ -257,12 +256,12 @@ var initializeMap = function() {
 			drawLangaugeSegments(circlePortions, false);
 		}
 		$("#languages").html("<table>\n" + languageShareHtml + "\n</table>");
-	}
-	
-	
+	};
+
+
 	var updateLocation = function() {
 		var bounds = map.getBounds();
-        tweetsOnScreen=[]
+		tweetsOnScreen=[];
 		for (var i = 0; i < tweets.length; i++) {
 			var tweet = tweets[i];
 			var lang = tweet[0];
@@ -271,7 +270,7 @@ var initializeMap = function() {
 				tweetsOnScreen.push(tweet)
 			}
 		}
-		
+
 		//Word cloud
 		var bounds_sw = bounds.getSouthWest();
 		var bounds_ne = bounds.getNorthEast();
