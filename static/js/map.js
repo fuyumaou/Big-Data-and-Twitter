@@ -179,6 +179,7 @@ var initializeMap = function() {
 	var tweets = [];
 	$.get("/allTweetLangs", function(response) {
 		tweets = response.tweets;
+		/*
 		var gj = [];
 		for (var tweetn in tweets) {
 			if (!tweets.hasOwnProperty(tweetn)) continue;
@@ -194,10 +195,11 @@ var initializeMap = function() {
 				}
 			});
 		}
-		/*map.data.addGeoJson({
+		map.data.addGeoJson({
 			type: "FeatureCollection",
 			features: gj
-		});*/
+		});
+		*/
 		updateLocation();
 	});
 
