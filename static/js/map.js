@@ -169,6 +169,13 @@ var initializeMap = function() {
 		"zh-cn": "Simplified Chinese",
 		"zh-tw": "Traditional Chinese",
 	};
+	var palette = [
+		"rgba( 61, 232, 50, 1.0 )",
+		"rgba( 0, 178, 255, 1.0 )",
+		"rgba( 195, 98, 235, 1.0 )",
+		"rgba( 0, 221, 245, 1.0 )",
+		"rgba( 255, 72, 190, 1.0 )"
+	];
 	map.data.setStyle(function(feature) {
 		var lang = feature.getProperty("language");
 		var icon = "/static/img/dot.png";
@@ -252,7 +259,8 @@ var initializeMap = function() {
 
 			if (languageTweetShare >= minShareSize) {
 				// (1 + (i % 5)) is hackish. we probably want more colours or something anyway...
-				var dotImg = "<td><img class=\"dot\" src=\"/static/img/dot" + (1 + (i % 5)) + ".png\"></img></td>";
+				//var dotImg = "<td><img class=\"dot\" src=\"/static/img/dot" + (1 + (i % 5)) + ".png\"></img></td>";
+				var dotImg = "<td class=\"lang-dot\" style=\"background-color: " + palette[i % palette.length] + ";\"></td>";
 				var langName = (lang in languageCodes) ? languageCodes[lang] : lang;
 				languageShareHtml += "<tr class=\"lang-stat\"><td class=\"lang-name\">" + langName +"</td>"+ dotImg +"<td class=\"percent-column\">"+ languageTweetShare + "%</td></tr>\n";
 
