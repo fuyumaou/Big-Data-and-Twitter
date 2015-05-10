@@ -89,15 +89,19 @@ var initializeMap = function() {
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
 				// console.log(response);
 				$("#places-title").text(name);
-				if (response.account_id) {
-					$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"	 data-user-id=\"" + response.account_id + "\">Tweets by +" + response.account_name + "+</a>");
-					twttr.widgets.load();
+				if (response.tweets.length === 0) {
+					$("#places-content").text("No tweets found mentioning \"" + name + "\"");
 				} else {
-					$("#places-account").html("No official account found");
+					if (response.account_id) {
+						$("#places-account").html("<a class=\"twitter-timeline\" href=\"https://twitter.com/tcb1024\" data-widget-id=\"594975506904256512\"	 data-user-id=\"" + response.account_id + "\">Tweets by +" + response.account_name + "+</a>");
+						twttr.widgets.load();
+					} else {
+						$("#places-account").html("No official account found");
+					}
+					$("#places-content").text("Twitter Users' Opinion");
+					sentimentBar.setValue(response.average_sentiment);
+					sentimentBar.show();
 				}
-				$("#places-content").text("Twitter Users' Opinion");
-				sentimentBar.setValue(response.average_sentiment);
-				sentimentBar.show();
 			});
 		}
 	};
