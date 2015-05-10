@@ -20,7 +20,7 @@
 			<ul id="menu" class="landing">
 				<li id="places-tab" class="tab">Places</li>
 				<li id="languages-tab" class="tab">Languages</li>
-				<li id="about-tab" class="tab">About</li>
+				<li id="about-tab" class="tab">About + FAQ</li>
 			</ul>
 			<input id="pac-input" class="controls landing" type="text" placeholder="Search Box">
 		</div>
@@ -29,7 +29,10 @@
 		<div id="sidebar" class="content landing">
 			<div id="places-page" class="sidebar-page">
 				<h1 id="places-title"></h1>
-				<h2 id="places-content">Click on a place to find tweets and sentiment about it</h2>
+				<div id="places-content">
+					<h2>Click on a place to find tweets and sentiment about it</h2>
+					<p>For more help click the About + FAQ tab above</p>
+				</div>
 				<div id="places-bar"><canvas id="sentiment-canvas" width="250px" height="20px"></canvas></div>
 				<div id="places-account"></div>
 			</div>
@@ -40,7 +43,22 @@
 				<div id="wordcloud">Loading...</div>
 			</div>
 			<div id="about-page" class="sidebar-page">
-				About page.
+				<h1>About</h1>
+				<p>This website provides a simple guide for travellers.</p>
+				<p>By combining the vast amounts of user generated data on Twitter with Google Maps, this site provides a tool which is both current and comes straight from people all around the world.</p>
+				<h1>FAQ</h1>
+				<p class="q">Q: What is that circle around my mouse?</p>
+				<p>The edge of a circle is a pie chart representing the spread of languages used in the area inside it. There is a key in the sidebar.</p>
+				<p class="q">Q: Why is the circle sometimes just black?</p>
+				<p>This means we haven't got any data for the area inside the circle. Try somewhere busier (e.g. Paris or London).</p>
+				<p class="q">Q: Where does the language and word cloud data come from?</p>
+				<p>We store and update a database of tweets which we process and display on this site.</p>
+				<p class="q">Q: In Places mode I am clicking on a place but nothing happens...</p>
+				<p>Some places like city names and train stations aren't included. Try somewhere else like a museum or a restaurant. Make sure an info window appears like this:</p>
+				<img src="static/img/places-example.png" alt="Places Example Usage">
+				<p class="q">Q: What exactly does the "Twitter's user's opinion" represent?</p>
+				<p>We use a sentiment analysis system on recent tweets mentioning that place. This uses machine learning to give a rough score out of ten to how positive or negative those tweets were.
+					 This score will change when more people tweet about it and it is only a guide - sometime's it's hard to tell whats positive and what's negative...</p>
 			</div>
 		</div>
 		<canvas id="circle-canvas" width="360px" height="360px"></canvas>

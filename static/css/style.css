@@ -50,6 +50,8 @@ html, body {
 	padding-bottom: 6px;
 	border-bottom: 4px solid rgb(160,160,160);
 	transition: all 250ms;
+	max-width: 200px;
+	min-width: 100px;
 }
 
 #menu .tab:hover, #menu .tab.selected {
@@ -214,8 +216,8 @@ img {
 #landing-box {
 	width: 500px;
 	height: 50px;
-	background-color: rgb(200,200,200);
-	opacity: 0.85;
+	background-color: rgba(200,200,200,0.6);
+	/*opacity: 0.6;*/
 	font-size: 20pt;
 	text-align: center;
 	color: rgba(0,0,0,0.8);
@@ -238,17 +240,26 @@ img {
 
 ::-webkit-input-placeholder { /* WebKit browsers */
     color:   black;
-		opacity: 0.7;
+		opacity: 0.9;
 }
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
    color:    black;
-   opacity:  0.7;
+   opacity:  0.9;
 }
 ::-moz-placeholder { /* Mozilla Firefox 19+ */
    color:    black;
-   opacity:  0.7;
+   opacity:  0.9;
 }
 :-ms-input-placeholder { /* Internet Explorer 10+ */
    color:    black;
-   opacity:  0.7;
+   opacity:  0.9;
+}
+
+#about-page p {
+	text-align: justify;
+	font-weight: 300;
+}
+
+#about-page p.q {
+	font-weight: 700;
 }

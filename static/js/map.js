@@ -83,6 +83,7 @@ var initializeMap = function() {
 			var sentimentBar = $("#sentiment-canvas").sentimentBar();
 			$("#places-bar").show();
 			sentimentBar.hide();
+			$("#places-tab").trigger("click");
 			// console.log(name);
 			// console.log(pos.lat() + ", " + pos.lng());
 			$.get("/place/" + name + "/" + pos.lat() + "/" + pos.lng(), function(response) {
