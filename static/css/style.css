@@ -190,6 +190,11 @@ img.dot {
 	display: none;
 }
 
+#map-canvas.landing {
+	-webkit-filter: blur(10px);
+	filter: blur(10px);
+}
+
 #circle-canvas {
 	position:absolute;
 	top:0px;
@@ -212,6 +217,10 @@ img {
 	height: 100%;
 	position: relative;
 }
+
+/*#landing-wrapper.loading {
+	background-color: white;
+}*/
 
 #landing-box {
 	width: 500px;

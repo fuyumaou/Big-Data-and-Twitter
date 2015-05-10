@@ -24,7 +24,7 @@
 			</ul>
 			<input id="pac-input" class="controls landing" type="text" placeholder="Search">
 		</div>
-		<div id="map-canvas" class="content"></div>
+		<div id="map-canvas" class="content landing"></div>
 
 		<div id="sidebar" class="content landing">
 			<div id="places-page" class="sidebar-page">
@@ -72,6 +72,7 @@
 		<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 		<script type="text/javascript" src="static/js/map.js"></script>
 		<script type="text/javascript" src="static/js/jqcloud-1.0.4.min.js"></script>
+
 		<script type="text/javascript">
 			$( document ).ready( function() {
 				// Draws placeholder segments while loading from db
@@ -148,7 +149,7 @@
 				var removeLanding = function() {
 					$("pac-input").show();
 					$("#pac-input").val($("#landing-box").val());
-					$(".pac-container, #menu, #header, #pac-input, #sidebar").removeClass("landing");
+					$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
 					$("#landing-wrapper").css("display", "none");
 					$("#sidebar").css("left", "0px");
 					$("#languages-tab, #languages-page").addClass("selected");

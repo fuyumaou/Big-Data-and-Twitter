@@ -369,6 +369,25 @@ var initializeMap = function() {
 		}
 	});
 
+	/*
+	google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
+		html2canvas(document.getElementById("map-canvas"), {
+			onrendered: function(canvas) {
+				var dataUrl = canvas.toDataURL("image/png");
+				$("body").css("background-image","url('"+dataUrl+"')");
+				$("#landing-wrapper").blurjs({
+					source: "body",
+					radius: 15
+				});
+				$("#landing-wrapper").removeClass("loading");
+			},
+			width: null,
+			height: null,
+			useCORS: true
+		});
+	});
+	*/
+
 };
 
 google.maps.event.addDomListener(window, "load", initializeMap);
