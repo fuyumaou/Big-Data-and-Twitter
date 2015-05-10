@@ -57,6 +57,8 @@ var initializeMap = function() {
 		styles: styles
 	};
 
+	var showFlags = false;
+
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
 		overlay = new google.maps.OverlayView();
@@ -176,21 +178,24 @@ var initializeMap = function() {
 		"rgba( 0, 221, 245, 1.0 )",
 		"rgba( 255, 72, 190, 1.0 )"
 	];
-	map.data.setStyle(function(feature) {
+
+	var styleMapData = function(feature) {
 		var lang = feature.getProperty("language");
 		var icon = "/static/img/dot.png";
 		if (lang in flags) {
 			icon = flags[lang];
 		}
 		return {
-			"icon": icon
+			"icon": icon,
+			"visible": showFlags
 		};
-	});
+	};
+
+	map.data.setStyle(styleMapData);
 	//get all the tweets
 	var tweets = [];
 	$.get("/allTweetLangs", function(response) {
 		tweets = response.tweets;
-		/*
 		var gj = [];
 		for (var tweetn in tweets) {
 			if (!tweets.hasOwnProperty(tweetn)) continue;
@@ -210,7 +215,6 @@ var initializeMap = function() {
 			type: "FeatureCollection",
 			features: gj
 		});
-		*/
 		updateLocation();
 	});
 
@@ -375,6 +379,12 @@ var initializeMap = function() {
 			map.setCenter(place.geometry.location);
 			map.setZoom(15);
 		}
+	});
+
+	$("#sidebar").on("click", function(e) {
+		showFlags = !showFlags;
+		console.log(showFlags);
+		map.data.setStyle(styleMapData);
 	});
 
 	/*
