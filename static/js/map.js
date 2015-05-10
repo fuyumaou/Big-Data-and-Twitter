@@ -98,8 +98,6 @@ var initializeMap = function() {
 				$("#places-content").text("Twitter Users' Opinion");
 				sentimentBar.setValue(response.average_sentiment);
 				sentimentBar.show();
-				// http://wbotelhos.com/raty
-				//TODO: display thumbsup vs thumbsdown (imgs already on server)
 			});
 		}
 	};

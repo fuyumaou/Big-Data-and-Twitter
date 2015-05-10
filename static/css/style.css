@@ -263,3 +263,7 @@ img {
 #about-page p.q {
 	font-weight: 700;
 }
+
+.gm-rev {
+	display: none;
+}
