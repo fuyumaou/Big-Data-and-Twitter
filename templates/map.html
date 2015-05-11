@@ -89,7 +89,7 @@
 		var removeLanding = function() {
 			$("pac-input").show();
 			$("#pac-input").val($("#landing-box").val());
-			$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
+			$("#menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
 			$("#landing-wrapper").css("display", "none");
 			$("#sidebar").css("left", "0px");
 			$("#languages-tab, #languages-page").addClass("selected");
@@ -171,14 +171,11 @@
 			// var bar = $( "sentiment-canvas" ).sentimentBar();
 			$("#places-bar").hide();
 			//bar.setValue(10);
-			$("#landing-box").on("click", function(e) {
-				$(".pac-container").addClass("landing");
-			});
 
 			var removeLanding = function() {
 				$("pac-input").show();
 				$("#pac-input").val($("#landing-box").val());
-				$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
+				$("#menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
 				$("#landing-wrapper").css("display", "none");
 				$("#sidebar").css("left", "0px");
 				$("#languages-tab, #languages-page").addClass("selected");
