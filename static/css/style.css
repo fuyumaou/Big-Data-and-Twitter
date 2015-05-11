@@ -42,14 +42,13 @@ html, body {
 		 -moz-box-sizing: content-box;
 					box-sizing: content-box;
 	display: inline-block;
-	padding: 10px 80px;
+	padding: 10px 50px;
 	font-size: 16pt;
 	height: 30px;
 	padding-bottom: 6px;
 	border-bottom: 4px solid rgb(160,160,160);
 	transition: all 250ms;
-	max-width: 200px;
-	min-width: 100px;
+	width: 150px;
 }
 
 #menu .tab:hover, #menu .tab.selected {
@@ -291,20 +290,20 @@ img {
 }
 
 ::-webkit-input-placeholder { /* WebKit browsers */
-    color:   black;
+		color:	 black;
 		opacity: 0.75;
 }
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color:    black;
-   opacity:  0.75;
+	 color:		black;
+	 opacity:	0.75;
 }
 ::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:    black;
-   opacity:  0.75;
+	 color:		black;
+	 opacity:	0.75;
 }
 :-ms-input-placeholder { /* Internet Explorer 10+ */
-   color:    black;
-   opacity:  0.75;
+	 color:		black;
+	 opacity:	0.75;
 }
 
 #about-page p {
@@ -318,4 +317,21 @@ img {
 
 .gm-rev {
 	display: none;
+}
+
+@media (max-width: 1180px) {
+	#menu .tab{
+		padding: 8px 35px;
+	}
+}
+@media (max-width: 1092px) {
+	#menu .tab{
+		padding: 8px 20px;
+	}
+}
+@media (max-width: 1000px) {
+	#pac-input {
+		top: 10px;
+		border: 2px solid rgb(200,200,200);
+	}
 }
