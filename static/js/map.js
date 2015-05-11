@@ -302,7 +302,7 @@ var initializeMap = function() {
 		//Word cloud
 		var bounds_sw = bounds.getSouthWest();
 		var bounds_ne = bounds.getNorthEast();
-		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/10", function( response ) {
+		$.get( "/words/" + bounds_sw.lng() + "/" + bounds_sw.lat() + "/" + bounds_ne.lng() + "/" + bounds_ne.lat() + "/6", function( response ) {
 			var words = [];
 			$("#wordcloud").html("");
 			if (response.words.length > 0) {
