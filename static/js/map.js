@@ -214,6 +214,27 @@ var initializeMap = function() {
 			features: gj
 		});
 		updateLocation();
+		$("#landing-wrapper").html('<input id="landing-box" class="landing-content" type="text" placeholder="Where do you want to go?">');
+		var searchBox = new google.maps.places.SearchBox(document.getElementById("landing-box"));
+
+		google.maps.event.addListener(searchBox, "places_changed", function() {
+			var place = searchBox.getPlaces()[0];
+
+			if (!place.geometry) return;
+
+			if (place.geometry.viewport) {
+				map.fitBounds(place.geometry.viewport);
+			} else {
+				map.setCenter(place.geometry.location);
+				map.setZoom(15);
+			}
+		});
+		$("#landing-box").keyup(function(e) {
+			if (e.keyCode == 13) removeLanding();
+		});
+		$("#landing-wrapper").on("click", function(e) {
+			if (!$(e.target).is("#landing-box")) removeLanding();
+		});
 	});
 
 	 var tweetsOnScreen = []; //a list of all tweets on the screen for faster searching
@@ -337,22 +358,6 @@ var initializeMap = function() {
 	var autocomplete = new google.maps.places.Autocomplete(input);
 	autocomplete.bindTo("bounds", map);
 
-	var searchBox = new google.maps.places.SearchBox(document.getElementById("landing-box"));
-
-	google.maps.event.addListener(searchBox, "places_changed", function() {
-		var place = searchBox.getPlaces()[0];
-
-		if (!place.geometry) return;
-
-		if (place.geometry.viewport) {
-			map.fitBounds(place.geometry.viewport);
-		} else {
-			map.setCenter(place.geometry.location);
-			map.setZoom(15);
-		}
-	});
-
-
 	var infowindow = new google.maps.InfoWindow();
 	var marker = new google.maps.Marker({
 		map: map
@@ -407,7 +412,6 @@ var initializeMap = function() {
 	fsw.on("click", fsw.flip);
 
 	$( ".tab" ).on( "click", function(e) {
-		var currentTabId = $(this).attr( "id" );
 		if (currentTabId !== "languages-tab") fsw.set(false);
 	} );
 

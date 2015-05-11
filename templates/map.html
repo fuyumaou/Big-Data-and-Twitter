@@ -9,7 +9,7 @@
 		<link href='http://fonts.googleapis.com/css?family=Oxygen:700,400,300' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="static/css/jqcloud.css" />
 		<!--link rel="stylesheet" href="static/css/gmaps-sidebar.css" /-->
-		<link rel="stylesheet" type="text/css" href="static/css/style.css"></style>
+		<link rel="stylesheet" type="text/css" href="static/css/style.css">
 		<!--<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ1QG7SEdSi66Tr0IE5ehHUpnoAbEQcnE">
 		</script>-->
@@ -33,7 +33,7 @@
 					<h2>Click on a place to find tweets and sentiment about it</h2>
 					<p>For more help click the About + FAQ tab above</p>
 				</div>
-				<div id="places-bar"><canvas id="sentiment-canvas" width="250px" height="20px"></canvas></div>
+				<div id="places-bar"><canvas id="sentiment-canvas" width="250" height="20"></canvas></div>
 				<div id="places-account"></div>
 			</div>
 			<div id="languages-page" class="sidebar-page">
@@ -72,12 +72,12 @@
 				<img src="static/img/ox_brand4_rev.gif" alt="University of Oxford" style="margin-bottom:15px;float:right;">
 			</div>
 		</div>
-		<canvas id="circle-canvas" width="360px" height="360px"></canvas>
+		<canvas id="circle-canvas" width="360" height="360"></canvas>
 		<div id="landing-wrapper">
-			<input id="landing-box" type="text" placeholder="Where do you want to go?">
+			<h1 class="landing-content">Loading Tweets...</h1>
 		</div>
 
-		<script src="https://maps.googleapis.com/maps/api/js?v=3&libraries=places"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?v=3&amp;libraries=places"></script>
 		<script type="text/javascript" src="static/js/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="static/js/circle.js"></script>
 		<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -85,105 +85,108 @@
 		<script type="text/javascript" src="static/js/jqcloud-1.0.4.min.js"></script>
 
 		<script type="text/javascript">
-			$( document ).ready( function() {
-				// Draws placeholder segments while loading from db
-				$("#circle-canvas").hide();
-				drawLangaugeSegments( [] );
-				var currentTabId = $( ".tab.selected" ).attr("id");
+		var currentTabId;
+		var removeLanding = function() {
+			$("pac-input").show();
+			$("#pac-input").val($("#landing-box").val());
+			$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
+			$("#landing-wrapper").css("display", "none");
+			$("#sidebar").css("left", "0px");
+			$("#languages-tab, #languages-page").addClass("selected");
+			currentTabId = "languages-tab";
+			$("#circle-canvas").show();
+		};
+		$( document ).ready( function() {
+			// Draws placeholder segments while loading from db
+			$("#circle-canvas").hide();
+			drawLangaugeSegments( [] );
+			// var currentTabId = $( ".tab.selected" ).attr("id");
 
-				$( ".tab" ).on( "click", function(e) {
-					var oldTab = $( ".tab.selected" ),
-							newTab = $( this );
-					var oldPage = $( "#" + oldTab.attr( "id" ).split( "-" )[0] + "-page" ),
-							newPage = $( "#" + newTab.attr( "id" ).split( "-" )[0] + "-page" );
+			$( ".tab" ).on( "click", function(e) {
+				var oldTab = $( ".tab.selected" ),
+						newTab = $( this );
+				var oldPage = $( "#" + oldTab.attr( "id" ).split( "-" )[0] + "-page" ),
+						newPage = $( "#" + newTab.attr( "id" ).split( "-" )[0] + "-page" );
 
-					oldTab.removeClass( "selected" );
-					oldPage.removeClass( "selected" );
+				oldTab.removeClass( "selected" );
+				oldPage.removeClass( "selected" );
 
-					newTab.addClass( "selected" );
-					newPage.addClass( "selected" );
+				newTab.addClass( "selected" );
+				newPage.addClass( "selected" );
 
-					currentTabId = newTab.attr( "id" );
-					//console.log( currentTabId === "languages-tab" );
-					currentTabId === "languages-tab" ? $("#circle-canvas").show() : $("#circle-canvas").hide();
-					//$( "#circle-canvas" ).hide();
-				} );
+				currentTabId = newTab.attr( "id" );
+				//console.log( currentTabId === "languages-tab" );
+				currentTabId === "languages-tab" ? $("#circle-canvas").show() : $("#circle-canvas").hide();
+				//$( "#circle-canvas" ).hide();
+			} );
 
-				$( "#sidebar, #header" ).on( "mouseover", function(e) {
-					if (currentTabId === "languages-tab") $( "#circle-canvas" ).hide();
-				} );
-				$( "#sidebar, #header" ).on( "mouseleave", function(e) {
-					if (currentTabId === "languages-tab") $( "#circle-canvas" ).show();
-				} );
+			$( "#sidebar, #header" ).on( "mouseover", function(e) {
+				if (currentTabId === "languages-tab") $( "#circle-canvas" ).hide();
+			} );
+			$( "#sidebar, #header" ).on( "mouseleave", function(e) {
+				if (currentTabId === "languages-tab") $( "#circle-canvas" ).show();
+			} );
 
-				$.fn.sentimentBar = function() {
-					var $bar = this;
-					var canvas = document.getElementById( "sentiment-canvas" );
-					var ctx = canvas.getContext( "2d" );
-					var w = canvas.width;
-					var h = canvas.height;
-					ctx.font = "12pt \"Oxygen\", sans-serif";
-					ctx.textAlign = "center";
-					ctx.textBaseline = "middle";
+			$.fn.sentimentBar = function() {
+				var $bar = this;
+				var canvas = document.getElementById( "sentiment-canvas" );
+				var ctx = canvas.getContext( "2d" );
+				var w = canvas.width;
+				var h = canvas.height;
+				ctx.font = "12pt \"Oxygen\", sans-serif";
+				ctx.textAlign = "center";
+				ctx.textBaseline = "middle";
 
-					var grd = ctx.createLinearGradient( 0, 0, w, h );
-					/*
-					grd.addColorStop( 0, "red" );
-					grd.addColorStop( 0.175, "orange" );
-					grd.addColorStop( 0.35, "yellow" );
-					grd.addColorStop( 0.7, "lightgreen" );
-					grd.addColorStop( 1, "green" );
-					*/
-					grd.addColorStop(0, "rgb( 195, 98, 235)");
-					grd.addColorStop(0.5, "rgb( 0, 178, 255)");
-					grd.addColorStop(0.7, "rgb( 61, 232, 50)");
-					grd.addColorStop(0.9, "rgb( 181, 245, 149	)");
+				var grd = ctx.createLinearGradient( 0, 0, w, h );
+				/*
+				grd.addColorStop( 0, "red" );
+				grd.addColorStop( 0.175, "orange" );
+				grd.addColorStop( 0.35, "yellow" );
+				grd.addColorStop( 0.7, "lightgreen" );
+				grd.addColorStop( 1, "green" );
+				*/
+				grd.addColorStop(0, "rgb( 195, 98, 235)");
+				grd.addColorStop(0.5, "rgb( 0, 178, 255)");
+				grd.addColorStop(0.7, "rgb( 61, 232, 50)");
+				grd.addColorStop(0.9, "rgb( 181, 245, 149	)");
 
-					$bar.setValue = function( value ) {
-						ctx.clearRect( 0, 0, w, h );
-						ctx.beginPath();
-						ctx.rect( 0, 0, w, h );
-						ctx.fillStyle = grd;
-						ctx.fill();
+				$bar.setValue = function( value ) {
+					ctx.clearRect( 0, 0, w, h );
+					ctx.beginPath();
+					ctx.rect( 0, 0, w, h );
+					ctx.fillStyle = grd;
+					ctx.fill();
 
-						ctx.beginPath();
-						ctx.rect(w * value / 10.0, 0, w, h);
-						ctx.fillStyle = "white";
-						ctx.fill();
-						ctx.fillStyle = "black";
-						ctx.fillText(Math.round(value * 100) / 100 + " / 10", w/2, h/2);
-					}
-
-					return $bar;
+					ctx.beginPath();
+					ctx.rect(w * value / 10.0, 0, w, h);
+					ctx.fillStyle = "white";
+					ctx.fill();
+					ctx.fillStyle = "black";
+					ctx.fillText(Math.round(value * 100) / 100 + " / 10", w/2, h/2);
 				}
 
-				// var bar = $( "sentiment-canvas" ).sentimentBar();
-				$("#places-bar").hide();
-				//bar.setValue(10);
-				$("#landing-box").on("click", function(e) {
-					$(".pac-container").addClass("landing");
-				});
+				return $bar;
+			}
 
-				var removeLanding = function() {
-					$("pac-input").show();
-					$("#pac-input").val($("#landing-box").val());
-					$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
-					$("#landing-wrapper").css("display", "none");
-					$("#sidebar").css("left", "0px");
-					$("#languages-tab, #languages-page").addClass("selected");
-					currentTabId = "languages-tab";
-					$("#circle-canvas").show();
-				};
+			// var bar = $( "sentiment-canvas" ).sentimentBar();
+			$("#places-bar").hide();
+			//bar.setValue(10);
+			$("#landing-box").on("click", function(e) {
+				$(".pac-container").addClass("landing");
+			});
 
-				$("#landing-box").keyup(function(e) {
-					if (e.keyCode == 13) removeLanding();
-				});
+			var removeLanding = function() {
+				$("pac-input").show();
+				$("#pac-input").val($("#landing-box").val());
+				$(".pac-container, #menu, #header, #pac-input, #sidebar, #map-canvas").removeClass("landing");
+				$("#landing-wrapper").css("display", "none");
+				$("#sidebar").css("left", "0px");
+				$("#languages-tab, #languages-page").addClass("selected");
+				currentTabId = "languages-tab";
+				$("#circle-canvas").show();
+			};
 
-				$("#landing-wrapper").on("click", function(e) {
-					if (!$(e.target).is("#landing-box")) removeLanding();
-				});
-
-			} );
+		} );
 		</script>
 	</body>
 </html>
