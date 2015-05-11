@@ -164,6 +164,7 @@ var initializeMap = function() {
 		"uk": "Ukrainian",
 		"ur": "Urdu",
 		"vi": "Vietnamese",
+		"zh": "Chinese",
 		"zh-cn": "Simplified Chinese",
 		"zh-tw": "Traditional Chinese",
 	};
