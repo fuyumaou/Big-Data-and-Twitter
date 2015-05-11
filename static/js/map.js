@@ -1,5 +1,3 @@
-var input = document.getElementById("pac-input");
-
 var initializeMap = function() {
 	//set up the map
 	//----------------
@@ -56,8 +54,6 @@ var initializeMap = function() {
 		disableDefaultUI: true,
 		styles: styles
 	};
-
-	var showFlags = false;
 
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
@@ -179,19 +175,21 @@ var initializeMap = function() {
 		"rgba( 255, 72, 190, 1.0 )"
 	];
 
-	var styleMapData = function(feature) {
-		var lang = feature.getProperty("language");
-		var icon = "/static/img/dot.png";
-		if (lang in flags) {
-			icon = flags[lang];
-		}
-		return {
-			"icon": icon,
-			"visible": showFlags
-		};
+	var styleMapData = function(showFlags) {
+		return (function(feature) {
+			var lang = feature.getProperty("language");
+			var icon = "/static/img/dot.png";
+			if (lang in flags) {
+				icon = flags[lang];
+			}
+			return {
+				"icon": icon,
+				"visible": showFlags
+			};
+		});
 	};
 
-	map.data.setStyle(styleMapData);
+	map.data.setStyle(styleMapData(false));
 	//get all the tweets
 	var tweets = [];
 	$.get("/allTweetLangs", function(response) {
@@ -335,7 +333,7 @@ var initializeMap = function() {
 	//temporarily ignore the sheer number of requests that would get sent here
 
 	//Search box, code from https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
-
+	var input = document.getElementById("pac-input");
 	var autocomplete = new google.maps.places.Autocomplete(input);
 	autocomplete.bindTo("bounds", map);
 
@@ -381,11 +379,37 @@ var initializeMap = function() {
 		}
 	});
 
-	$("#sidebar").on("click", function(e) {
-		showFlags = !showFlags;
-		console.log(showFlags);
-		map.data.setStyle(styleMapData);
-	});
+	$.fn.flagsSwitch = function() {
+		$fsw = this;
+		$fs = $fsw.children();
+		$fsw.setting = false;
+		$fsw.set = function(showFlags) {
+			if (showFlags) {
+				$fs.removeClass("left");
+				$fs.addClass("right");
+				$fsw.css("background-color", palette[0]);
+			} else {
+				$fs.removeClass("right");
+				$fs.addClass("left");
+				$fsw.css("background-color", "rgb(200,200,200)");
+			}
+			$fsw.setting = showFlags;
+			map.data.setStyle(styleMapData($fsw.setting));
+		};
+		$fsw.flip = function() {
+			$fsw.setting = !$fsw.setting;
+			$fsw.set($fsw.setting);
+		};
+		return $fsw;
+	};
+
+	var fsw = $("#flags-switch-wrapper").flagsSwitch();
+	fsw.on("click", fsw.flip);
+
+	$( ".tab" ).on( "click", function(e) {
+		var currentTabId = $(this).attr( "id" );
+		if (currentTabId !== "languages-tab") fsw.set(false);
+	} );
 
 	/*
 	google.maps.event.addListenerOnce(map, 'tilesloaded', function(){

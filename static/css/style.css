@@ -119,6 +119,43 @@ html, body {
 	margin: 5px 0;
 }
 
+#switch-section {
+	margin: 10px auto;
+	margin-bottom: 0;
+}
+
+.switch-label {
+	min-width: 80px;
+	font-size: 11pt;
+}
+
+#flags-switch-wrapper {
+	background-color: rgb(200,200,200);
+	/*position: relative;*/
+	padding: 0;
+	width: 60px;
+	height: 29px;
+	border-radius: 5px;
+	border: 2px solid rgb(150,150,150);
+}
+
+#flags-switch {
+	background-color: rgb(240,240,240);
+	float: left;
+	height: 25px;
+	width: 25px;
+	border-radius: 3px;
+	/*transition: all 750ms;*/
+}
+
+#flags-switch.left {
+	float: left;
+}
+
+#flags-switch.right {
+	float: right;
+}
+
 #languages {
 	margin: 10px 0px;
 }
