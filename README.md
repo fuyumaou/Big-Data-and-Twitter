@@ -89,14 +89,15 @@ https://docs.google.com/document/d/1-L9ZlJrEFOkF_HBKKI0fdbeh5nAImPiE6juvJwK7Bi8/
 https://docs.google.com/document/d/1Oz8P191NhYcW2F_nyWKXUU-yRKX1a-aY3NyEmdrjpIo/edit?usp=sharing
 
 ### Credits:
-Group 3:
-    Alexander Bridgland
-    Toby Cathcart Burn
-    Dan-Andrei Gheorghe
-    Paul-Stefan Herman
-    Mariya Lazarova
-Under the supervision of:
-    Dr. Jason Nurse
-    Dr. Ioannis Agrafiotis
-    Dr. Arnau Erola
+### Credits:
+Group 3:  
+    Alexander Bridgland  
+    Toby Cathcart Burn  
+    Dan-Andrei Gheorghe  
+    Paul-Stefan Herman  
+    Mariya Lazarova  
+Under the supervision of:  
+    Dr. Jason Nurse  
+    Dr. Ioannis Agrafiotis  
+    Dr. Arnau Erola  
     
