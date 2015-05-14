@@ -4,54 +4,54 @@
 A project developed for the 2nd Year Group Design Practical of the Computer Science Course 
 at the University of Oxford. It aims to be web application that can be used as a minimalist 
 survival guide for confused tourist, built using data gathered from Twitter users. It is simple 
-enough to be used by any tourist and offers support for any trip location.
+enough to be used by any tourist and offers support for any trip location.  
 
-At the moment, the four main uses are:
-(1) getting the Language Distribution of Tweets in any circular area;
-(2) building a Word Cloud of the most frequent words in the area viewed by the User;
-(3) obtaining the Official Twitter Timeline of any Place of Interest;
-(4) obtaining the Twitter Users' Opinion about any Place of Interest.
+At the moment, the four main uses are:  
+(1) getting the Language Distribution of Tweets in any circular area;  
+(2) building a Word Cloud of the most frequent words in the area viewed by the User;  
+(3) obtaining the Official Twitter Timeline of any Place of Interest;  
+(4) obtaining the Twitter Users' Opinion about any Place of Interest.  
+  
+Of Note: (1) and (2) depend on the sample space of Tweets gathered and stored in a MongoDB database.  
 
-Of Note: (1) and (2) depend on the sample space of Tweets gathered and stored in a MongoDB database.
-
-### Setting Up:
-1. Using git clone the project in the folder of your choosing (alternatively download and copy the files).
-2. Install Python 2.7.9. Make sure Pip is installed (otherwise install it).
-3. Install VirtualEnv, by typing in the terminal of your choice:
-    pip install virtualenv
-4. Go to the project folder and create a directory called env.
-5. In terminal, write:
-    virtualenv env
-   to create the virtual environment.
-6. Setup the Environment Variables, either in the System or by changing the activation script.
-   The following are required:
-        TWITTER_ACCESS_TOKEN
-        TWITTER_ACCESS_TOKEN_SECRET
-        TWITTER_CONSUMER_KEY
-        TWITTER_CONSUMER_SECRET
-        ALCHEMYAPI_KEY
-        MONGOLAB_URI
-   First four will be provided by Twitter, the fifth can be obtained from the AlchemyAPI, while the sixth
-   is the URI to the MongoDB database.
-   If the activation script is changed to set these variables make sure to unset them in the deactivation script.
+### Setting Up:  
+1. Using git clone the project in the folder of your choosing (alternatively download and copy the files).  
+2. Install Python 2.7.9. Make sure Pip is installed (otherwise install it).  
+3. Install VirtualEnv, by typing in the terminal of your choice:  
+    pip install virtualenv  
+4. Go to the project folder and create a directory called env.  
+5. In terminal, write:  
+    virtualenv env      
+   to create the virtual environment.  
+6. Setup the Environment Variables, either in the System or by changing the activation script.  
+   The following are required:  
+        TWITTER_ACCESS_TOKEN  
+        TWITTER_ACCESS_TOKEN_SECRET  
+        TWITTER_CONSUMER_KEY  
+        TWITTER_CONSUMER_SECRET  
+        ALCHEMYAPI_KEY  
+        MONGOLAB_URI  
+   First four will be provided by Twitter, the fifth can be obtained from the AlchemyAPI, while the sixth  
+   is the URI to the MongoDB database.  
+   Of Note: If the activation script is changed to set these variables make sure to unset them in the deactivation script.  
    
    For Windows users, the activation/deactivation scripts are activate.bat and deactivate.bat in env\Scripts\.
-   Just open any text editor of choice, and add: 
-    in activate.bat:
-        set "[VAR_NAME]=[VAR_VALUE]"
-    in deactivate.bat:
-        set [VAR_NAME]=
+   Just open any text editor of choice, and add:  
+    in activate.bat:  
+        set "[VAR_NAME]=[VAR_VALUE]"  
+    in deactivate.bat:  
+        set [VAR_NAME]=  
     [VAR_NAME] is to be replaced with actual name of the Environment Variable, while [VAR_VALUE] with the actual value you
-    want to use for them.
-    It is possible to set the Variables for the other Operating Systems (probably easier).
-7. Activate Virtual Environment.
-    on Windows: run from terminal: env\Scripts\activate
-8. Install prerequisites:
-    pip install -r requirements.txt
-9. Once usage is finished: run deactivate.
+    want to use for them.  
+    Of Note: It is possible to set the Variables for the other Operating Systems (probably easier).  
+7. Activate Virtual Environment.  
+    on Windows: run from terminal: env\Scripts\activate  
+8. Install prerequisites:  
+    pip install -r requirements.txt  
+9. Once usage is finished: run deactivate.  
 
-Notes: it is possible to run without virtualenv, although it means that all the Environment Variables and the prerequisites 
-have to be installed on the System.
+Of Note: it is possible to run without virtualenv, although it means that all the Environment Variables and the prerequisites 
+have to be installed on the System.  
 
 ### Gathering Data:
     When the environment is set up, in the folder of the project open a terminal and run:
