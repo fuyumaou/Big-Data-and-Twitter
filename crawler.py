@@ -4,10 +4,10 @@ from TwitterAPI import TwitterAPI
 from pymongo import MongoClient, GEOSPHERE
 import datetime
 
-twitter_access_token = '178658388-CDwtvkSOOb3ikZXaVeDBlxzHwj0wEyQ5ntTPhs5n'
-twitter_access_token_secret = 'zJzQK6F00hwsG32STbITqvavbhYt5rtV6vZH69QbcKf8I'
-twitter_consumer_key = 'bWMmJpHklikmU3fbKemgmr40H'
-twitter_consumer_secret = 'MsAYHkqUuGi1bBWiTyiJiDdVCQ6DvYMt8ROsjJ1GFIFQCFP0Dp'
+twitter_access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+twitter_access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+twitter_consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
+twitter_consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 
 def tweet_text_words(tweet_text):
 	tweet_text = re.sub(r'[^\x00-\x7F]+',' ', tweet_text) # remove non-printable characters
