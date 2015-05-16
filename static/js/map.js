@@ -73,6 +73,7 @@ var initializeMap = function() {
 		if (this.logAsInternal) {
 			$("#places-account").text("");
 			$("#places-title").text("");
+            $("#places-alchemy").text("");
 			$("#places-content").html("<center><img width=\"150\" src=\"/static/img/loading.gif\" alt=\"Loading\" /></center>");
 
 			var infoWindow = this;
@@ -97,6 +98,7 @@ var initializeMap = function() {
 						$("#places-account").html("No official account found");
 					}
 					$("#places-content").text("Twitter Users' Opinion");
+                    $("#places-alchemy").text("Results obtained using AlchemyAPI");
 					sentimentBar.setValue(response.average_sentiment);
 					sentimentBar.show();
 				}
